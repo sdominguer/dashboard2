@@ -97,33 +97,47 @@ if uploaded_file:
             fig_pie = px.pie(df, names='Estado_Envio', hole=0.4, template="plotly_dark", title="Cumplimiento Logístico")
             st.plotly_chart(fig_pie, use_container_width=True)
 
-        # --- SECCIÓN IA (DEBAJO DE LAS GRÁFICAS) ---
-        st.divider()
-        st.subheader("🤖 Análisis Estratégico de IA")
-        
-        if groq_api_key:
-            if st.button("🧠 Ejecutar Diagnóstico Inteligente"):
-                with st.spinner("La IA está procesando las gráficas y tendencias..."):
-                    try:
-                        client = Groq(api_key=groq_api_key)
-                        resumen_ia = df.groupby('Categoria')[['Utilidad_Total', 'Cantidad_Vendida']].sum().to_string()
-                        
-                        chat = client.chat.completions.create(
-                            model="llama-3.3-70b-versatile",
-                            messages=[
-                                {"role": "system", "content": "Eres un Consultor Senior. Analiza los datos de rentabilidad y logística proporcionados. Sé crítico y directo."},
-                                {"role": "user", "content": f"Datos Consolidados:\n{resumen_ia}\n\nGenera 3 hallazgos clave y una recomendación inmediata."}
-                            ]
-                        )
-                        st.markdown(f'<div class="ai-container">{chat.choices[0].message.content}</div>', unsafe_allow_html=True)
-                    except Exception as e:
-                        st.error(f"Error de conexión con Groq: {e}")
-        else:
-            st.warning("⚠️ Ingresa la Groq API Key en el menú lateral para habilitar el análisis.")
+        # --- SECCIÓN IA: DIAGNÓSTICO ESTRATÉGICO (DEBAJO DE LAS GRÁFICAS) ---
+st.divider()
+st.subheader("🤖 Consultoría de Riesgo Operativo (IA)")
 
-    with tab_aud:
-        st.markdown("**Transacciones con Margen de Riesgo (Utilidad < 0)**")
-        st.dataframe(df[df['Utilidad_Total'] < 0][['Transaccion_ID', 'SKU_ID', 'Utilidad_Total', 'Ciudad_Destino']].style.background_gradient(cmap='Reds'))
+if groq_api_key:
+    if st.button("🧠 Generar Auditoría de las 5 Preguntas Clave"):
+        with st.spinner("Analizando fugas de capital y crisis logística..."):
+            try:
+                client = Groq(api_key=groq_api_key)
+                
+                # Preparamos un resumen ultra-detallado para que la IA responda con precisión
+                resumen_para_ia = {
+                    "fuga_capital": df[df['Utilidad_Total'] < 0][['Categoria', 'Canal_Venta', 'Utilidad_Total']].to_string(),
+                    "logistica_nps": df.groupby(['Ciudad_Destino', 'Bodega_Origen'])[['Tiempo_Entrega_Real', 'Satisfaccion_NPS']].mean().to_string(),
+                    "venta_invisible": df[df['Categoria'] == 'No Catalogado (Fantasma)']['Precio_Venta_Final'].sum(),
+                    "paradoja_stock": df.groupby('Categoria')[['Stock_Actual', 'Satisfaccion_NPS']].mean().to_string(),
+                    "tickets_revision": df.groupby('Bodega_Origen')[['Ticket_Soporte_Abierto', 'Ultima_Revision']].count().to_string()
+                }
+                
+                prompt_maestro = f"""
+                Actúa como un Auditor Senior de Operaciones. Basado en estos datos, responde de forma ejecutiva:
+                
+                1. RENTABILIDAD: Analiza los SKUs con margen negativo en estos datos: {resumen_para_ia['fuga_capital']}. ¿Es falla de precios en Online?
+                2. LOGÍSTICA: Según esta relación Tiempo/NPS {resumen_para_ia['logistica_nps']}, ¿qué zona necesita cambio de operador?
+                3. VENTA INVISIBLE: El impacto de SKUs fantasma es de ${resumen_para_ia['venta_invisible']} USD. ¿Qué porcentaje del ingreso total ({revenue}) representa este riesgo?
+                4. FIDELIDAD: Analiza stock vs sentimiento: {resumen_para_ia['paradoja_stock']}. ¿Calidad o sobrecosto?
+                5. RIESGO OPERATIVO: Relación Tickets/Revisión por bodega: {resumen_para_ia['tickets_revision']}. ¿Quién opera a ciegas?
 
+                Usa un tono profesional, markdown, negritas para hallazgos y responde en Español.
+                """
+                
+                chat = client.chat.completions.create(
+                    model="llama-3.3-70b-versatile",
+                    messages=[{"role": "system", "content": "Eres un experto en optimización de supply chain y finanzas."},
+                              {"role": "user", "content": prompt_maestro}]
+                )
+                
+                # Mostrar la respuesta en el contenedor oscuro
+                st.markdown(f'<div class="ai-container">{chat.choices[0].message.content}</div>', unsafe_allow_html=True)
+                
+            except Exception as e:
+                st.error(f"Error en el análisis: {e}")
 else:
-    st.info("🌙 Sistema listo. Cargue el archivo CSV en el panel lateral para iniciar.")
+    st.warning("⚠️ Configura la API Key en el menú lateral para obtener el diagnóstico de auditoría.")
