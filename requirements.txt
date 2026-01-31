@@ -1,5 +1,5 @@
-pandas
-numpy
 streamlit
+pandas
 plotly
 matplotlib
+groq
