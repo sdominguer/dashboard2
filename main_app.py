@@ -96,7 +96,9 @@ if uploaded_file:
         with c2:
             fig_pie = px.pie(df, names='Estado_Envio', hole=0.4, template="plotly_dark", title="Cumplimiento Logístico")
             st.plotly_chart(fig_pie, use_container_width=True)
-
+else:
+    st.info("🌙 Sistema listo. Cargue el archivo CSV en el panel lateral para iniciar.")
+    
         # --- SECCIÓN IA: DIAGNÓSTICO ESTRATÉGICO (DEBAJO DE LAS GRÁFICAS) ---
 st.divider()
 st.subheader("🤖 Consultoría de Riesgo Operativo (IA)")
@@ -142,5 +144,4 @@ if groq_api_key:
 else:
     st.warning("⚠️ Configura la API Key en el menú lateral para obtener el diagnóstico de auditoría.")
 
-else:
-    st.info("🌙 Sistema listo. Cargue el archivo CSV en el panel lateral para iniciar.")
+
