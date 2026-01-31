@@ -1,87 +1,148 @@
 import streamlit as st
 import pandas as pd
-import numpy as np
 import plotly.express as px
+import numpy as np
+import os
 
-st.set_page_config(page_title="Executive Sales Analytics", layout="wide")
+# Manejo de errores para Groq
+try:
+    from groq import Groq
+except ImportError:
+    st.error("⚠️ Error: Falta 'groq' en requirements.txt")
+    Groq = None
 
-# Estilos de color personalizados (Ventas y Negocios)
-COLOR_SUCCESS = "#28a745" # Verde Ventas
-COLOR_DANGER = "#dc3545"  # Rojo Pérdidas
-COLOR_NEUTRAL = "#007bff" # Azul Logística
+# --- CONFIGURACIÓN DE PÁGINA ---
+st.set_page_config(
+    page_title="Global Logistics AI Dash",
+    layout="wide",
+    page_icon="🛳️",
+    initial_sidebar_state="expanded"
+)
 
-uploaded_file = st.file_uploader("📂 Cargar Reporte Consolidado (CSV)", type="csv")
+# --- PALETA CORPORATIVA (Steel & Gold) ---
+BI_PALETTE = ["#1A3A5F", "#D4AF37", "#4A6274", "#C0C0C0", "#2E8B57", "#CD5C5C"]
 
-if uploaded_file:
-    df = pd.read_csv(uploaded_file)
+# --- CSS PERSONALIZADO (ESTILO BUSINESS-CLEAN) ---
+st.markdown("""
+    <style>
+    .block-container { padding-top: 2rem; max-width: 95%; }
+    h1, h2, h3 { font-family: 'Segoe UI', sans-serif; color: #1A3A5F; font-weight: 600; }
     
-    # Procesamiento rápido de métricas
-    df['Utilidad_Total'] = (df['Precio_Venta_Final'] * df['Cantidad_Vendida']) - (df['Costo_Unitario_USD'] * df['Cantidad_Vendida']) - df['Costo_Envio']
-    
-    st.title("📊 Financial & Operational Dashboard")
-    st.divider()
+    /* Tarjetas de Métricas */
+    div[data-testid="metric-container"] {
+        background-color: #FFFFFF;
+        border: 1px solid #E8EBE8;
+        padding: 15px;
+        border-radius: 10px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
 
-    # --- 1. SECCIÓN CUANTITATIVA (Métricas de Dinero) ---
-    st.subheader("🔢 Indicadores Cuantitativos (Performance)")
-    c1, c2, c3, c4 = st.columns(4)
-    
-    total_revenue = df['Precio_Venta_Final'].sum()
-    total_profit = df['Utilidad_Total'].sum()
-    profit_margin = (total_profit / total_revenue) * 100 if total_revenue != 0 else 0
-    
-    c1.metric("Ingresos Brutos", f"${total_revenue:,.2f}")
-    c2.metric("Utilidad Neta", f"${total_profit:,.2f}", delta=f"{profit_margin:.1f}% Margen")
-    c3.metric("Ticket Promedio", f"${df['Precio_Venta_Final'].mean():,.2f}")
-    c4.metric("Volumen de Unidades", f"{df['Cantidad_Vendida'].sum():,.0f}")
+    /* Estilo de los TABS */
+    .stTabs [data-baseweb="tab-list"] { gap: 24px; border-bottom: 1px solid #E0E0E0; }
+    .stTabs [data-baseweb="tab"] p { font-size: 18px; color: #7F8C8D; }
+    .stTabs [aria-selected="true"] p { color: #1A3A5F !important; font-weight: 700; }
+    .stTabs [data-baseweb="tab-highlight"] { background-color: #1A3A5F !important; }
 
-    # --- 2. SECCIÓN GRÁFICA (Tendencias y Distribución) ---
-    st.divider()
-    st.subheader("📈 Análisis Gráfico Visual")
-    g1, g2 = st.columns(2)
+    /* Botón Analizar con IA */
+    .stButton > button {
+        background-color: #1A3A5F;
+        color: white;
+        border-radius: 20px;
+        padding: 0.5rem 2.5rem;
+        border: none;
+    }
+    </style>
+""", unsafe_allow_html=True)
 
-    with g1:
-        # Gráfico de barras con escala de colores de ventas (Rojo a Verde)
-        fig_rent = px.bar(
-            df.groupby('Categoria')['Utilidad_Total'].sum().reset_index(),
-            x='Categoria', y='Utilidad_Total',
-            title="Rentabilidad por Categoría",
-            color='Utilidad_Total',
-            color_continuous_scale=[COLOR_DANGER, "#ffc107", COLOR_SUCCESS]
+# --- CARGA DE DATOS ---
+def process_data(file):
+    df = pd.read_csv(file)
+    # Convertir a numérico lo crítico
+    for col in ['Precio_Venta_Final', 'Costo_Unitario_USD', 'Cantidad_Vendida', 'Costo_Envio', 'Satisfaccion_NPS']:
+        if col in df.columns:
+            df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0)
+    
+    # Cálculo de Utilidad
+    df['Utilidad_Total'] = (df['Precio_Venta_Final'] * df['Cantidad_Vendida']) - \
+                           (df['Costo_Unitario_USD'] * df['Cantidad_Vendida']) - \
+                           df['Costo_Envio']
+    return df
+
+# --- FUNCIÓN IA ---
+def get_ai_insight(df, api_key):
+    client = Groq(api_key=api_key)
+    stats = df.groupby('Categoria')['Utilidad_Total'].sum().to_string()
+    
+    prompt = f"""
+    Eres un CFO experto. Analiza estos datos de rentabilidad por categoría:
+    {stats}
+    1. Identifica la categoría más rentable y la que genera más pérdidas.
+    2. Da una recomendación de reducción de costos o ajuste de precios.
+    Responde en 3 puntos breves usando Markdown.
+    """
+    try:
+        completion = client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            messages=[{"role": "user", "content": prompt}]
         )
-        st.plotly_chart(fig_rent, use_container_width=True)
+        return completion.choices[0].message.content
+    except Exception as e:
+        return f"Error en IA: {e}"
 
-    with g2:
-        # Gráfico de dispersión para eficiencia logística
-        fig_disp = px.scatter(
-            df, x='Precio_Venta_Final', y='Costo_Envio',
-            color='Estado_Envio', size='Cantidad_Vendida',
-            title="Relación Precio vs. Costo de Envío",
-            color_discrete_sequence=px.colors.qualitative.Safe
-        )
-        st.plotly_chart(fig_disp, use_container_width=True)
+# --- SIDEBAR ---
+with st.sidebar:
+    st.title("⚙️ Operaciones")
+    groq_api_key = st.text_input("Groq API Key", type="password")
+    uploaded_file = st.file_uploader("Cargar CSV Consolidado", type=["csv"])
+    
+    if uploaded_file:
+        df_raw = process_data(uploaded_file)
+        sel_ciudades = st.multiselect("Ciudades", sorted(df_raw['Ciudad_Destino'].unique()), default=df_raw['Ciudad_Destino'].unique()[:3])
 
-    # --- 3. SECCIÓN CUALITATIVA (Feedback y Soporte) ---
-    st.divider()
-    st.subheader("🗣️ Análisis Cualitativo (Voz del Cliente)")
-    f1, f2 = st.columns([1, 2])
+# --- DASHBOARD PRINCIPAL ---
+if uploaded_file and sel_ciudades:
+    df = df_raw[df_raw['Ciudad_Destino'].isin(sel_ciudades)].copy()
 
-    with f1:
-        # Resumen de satisfacción
-        avg_nps = df[df['Satisfaccion_NPS'] > 0]['Satisfaccion_NPS'].mean()
-        st.info(f"**NPS General:** {avg_nps:.1f} / 100")
-        
-        # Conteo de tickets
-        tickets = df['Ticket_Soporte_Abierto'].value_counts()
-        fig_tick = px.pie(values=tickets.values, names=tickets.index, 
-                          title="Estado de Tickets",
-                          color_discrete_map={'Sí': COLOR_DANGER, 'No': COLOR_SUCCESS, 'Sin Registro': '#6c757d'})
-        st.plotly_chart(fig_tick, use_container_width=True)
+    st.title("🛳️ Global Sales & Logistics Intelligence")
+    
+    # KPIs
+    k1, k2, k3, k4 = st.columns(4)
+    k1.metric("Ventas Totales", f"${df['Precio_Venta_Final'].sum():,.0f}")
+    k2.metric("Utilidad Neta", f"${df['Utilidad_Total'].sum():,.0f}")
+    k3.metric("NPS", f"{df[df['Satisfaccion_NPS']>0]['Satisfaccion_NPS'].mean():.1f}")
+    k4.metric("Volumen", f"{df['Cantidad_Vendida'].sum():,.0f}")
 
-    with f2:
-        # Tabla de comentarios críticos (Cualitativo puro)
-        st.write("**Últimos Comentarios de Clientes (Rating Bajo):**")
-        criticos = df[df['Rating_Producto'] <= 2][['SKU_ID', 'Comentario_Texto', 'Rating_Producto']].head(10)
-        st.dataframe(criticos, use_container_width=True)
+    # IA INSIGHTS
+    with st.container(border=True):
+        c_ia1, c_ia2 = st.columns([1, 5])
+        c_ia1.image("https://cdn-icons-png.flaticon.com/512/4712/4712139.png", width=70)
+        with c_ia2:
+            st.subheader("🤖 Consultor Financiero AI")
+            if st.button("Generar Diagnóstico Estratégico"):
+                if groq_api_key:
+                    with st.spinner("Analizando balances..."):
+                        st.markdown(get_ai_insight(df, groq_api_key))
+                else: st.warning("Ingresa la API Key")
 
-else:
-    st.warning("Esperando archivo CSV para segmentar datos...")
+    # TABS
+    tab1, tab2, tab3 = st.tabs(["📊 Rentabilidad", "🚚 Logística", "👤 Clientes"])
+
+    with tab1:
+        fig_bar = px.bar(df.groupby('Categoria')['Utilidad_Total'].sum().reset_index(), 
+                         x='Utilidad_Total', y='Categoria', orientation='h',
+                         color='Utilidad_Total', color_continuous_scale='RdYlGn',
+                         title="<b>Utilidad Neta por Categoría</b>")
+        st.plotly_chart(fig_bar, use_container_width=True)
+
+    with tab2:
+        fig_ship = px.scatter(df, x='Tiempo_Entrega_Real', y='Costo_Envio', 
+                              color='Estado_Envio', size='Precio_Venta_Final',
+                              color_discrete_sequence=BI_PALETTE)
+        st.plotly_chart(fig_ship, use_container_width=True)
+
+    with tab3:
+        st.subheader("Comentarios de Calidad Crítica")
+        st.dataframe(df[df['Rating_Producto'] <= 2][['SKU_ID', 'Comentario_Texto', 'Ciudad_Destino']].head(10), use_container_width=True)
+
+elif not uploaded_file:
+    st.info("👋 Sube el archivo para iniciar el análisis corporativo.")
