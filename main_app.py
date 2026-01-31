@@ -4,35 +4,49 @@ import plotly.express as px
 import numpy as np
 from groq import Groq
 
-# --- CONFIGURACIÓN ---
-st.set_page_config(page_title="Auditoría de Operaciones Pro", layout="wide", page_icon="🌙")
+# --- CONFIGURACIÓN DE PÁGINA ---
+st.set_page_config(page_title="Auditoría Pro: Operaciones & IA", layout="wide", page_icon="🌙")
 
-# --- CSS: DARK MODE & MÉTRICAS FLOTANTES ---
-st.markdown("""
+# --- PALETA DE COLORES PERSONALIZADA ---
+COLOR_AZUL = "#1E88E5"
+COLOR_GRIS = "#475569"
+COLOR_ROJO = "#EF4444"
+COLOR_VERDE = "#10B981"
+COLOR_FONDO = "#0E1117"
+
+# --- CSS: MODO OSCURO & ESTILO MINIMALISTA ---
+st.markdown(f"""
     <style>
-    .stApp { background-color: #0E1117; color: #FFFFFF; }
-    h1, h2, h3, p, span, label { color: #FFFFFF !important; }
-    div[data-testid="metric-container"] { background-color: transparent !important; border: none !important; }
-    [data-testid="stMetricValue"] { color: #FFFFFF !important; font-size: 32px !important; font-weight: 700 !important; }
+    .stApp {{ background-color: {COLOR_FONDO}; color: #FFFFFF; }}
+    h1, h2, h3, p, span, label {{ color: #FFFFFF !important; }}
     
-    .ai-container {
+    /* Métricas Transparentes (Sin fondo blanco) */
+    div[data-testid="metric-container"] {{
+        background-color: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+    }}
+    
+    /* Contenedor de IA con borde azul sutil */
+    .ai-container {{
         background-color: #161B22;
         border-radius: 12px;
         padding: 25px;
-        border-left: 5px solid #58A6FF;
+        border-left: 5px solid {COLOR_AZUL};
         margin-top: 15px;
-    }
-    .question-box {
-        background-color: #0d1117;
-        padding: 15px;
-        border-radius: 8px;
-        border: 1px dashed #30363d;
-        margin-bottom: 10px;
-    }
+    }}
+    
+    .question-box {{
+        background-color: #161B22;
+        padding: 20px;
+        border-radius: 10px;
+        border: 1px solid {COLOR_GRIS};
+        margin-bottom: 20px;
+    }}
     </style>
 """, unsafe_allow_html=True)
 
-# --- PROCESAMIENTO ---
+# --- PROCESAMIENTO DE DATOS ---
 @st.cache_data
 def process_data(file):
     df = pd.read_csv(file)
@@ -41,6 +55,7 @@ def process_data(file):
         if col in df.columns:
             df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0)
     
+    # Utilidad = Ingreso - Costo - Envío
     df['Utilidad_Total'] = (df['Precio_Venta_Final'] * df['Cantidad_Vendida']) - \
                            (df['Costo_Unitario_USD'] * df['Cantidad_Vendida']) - \
                            df['Costo_Envio']
@@ -48,94 +63,103 @@ def process_data(file):
 
 # --- SIDEBAR ---
 with st.sidebar:
-    st.title("🌙 Control Center")
+    st.title("🚜 Control Center")
     with st.expander("🔑 Configuración IA", expanded=True):
         groq_api_key = st.text_input("Groq API Key", type="password")
     
     uploaded_file = st.file_uploader("📂 Cargar Datos CSV", type=["csv"])
     if uploaded_file:
         df_raw = process_data(uploaded_file)
-        sel_cats = st.multiselect("Categorías", sorted(df_raw['Categoria'].unique()), default=df_raw['Categoria'].unique())
-        n_registros = st.slider("Registros", 50, len(df_raw), 500)
+        st.divider()
+        sel_cats = st.multiselect("Filtrar Categorías", sorted(df_raw['Categoria'].unique()), default=df_raw['Categoria'].unique())
+        n_registros = st.slider("Volumen de datos", 50, len(df_raw), 500)
 
-# --- DASHBOARD ---
+# --- DASHBOARD PRINCIPAL ---
 if uploaded_file:
     df = df_raw[df_raw['Categoria'].isin(sel_cats)].head(n_registros)
     revenue = df['Precio_Venta_Final'].sum()
     profit = df['Utilidad_Total'].sum()
 
-    st.title("📈 Strategic Business Intelligence")
+    st.title("📈 Intelligence Business Dashboard")
 
-    # MÉTRICAS TOP
+    # --- MÉTRICAS TOP (AZULES Y GRISES CON ALERTAS) ---
     m1, m2, m3, m4 = st.columns(4)
-    m1.metric("Ingresos", f"${revenue:,.0f}")
-    m2.metric("Utilidad", f"${profit:,.0f}", delta=f"{(profit/revenue*100):.1f}%" if revenue != 0 else "0%")
-    m3.metric("NPS Mediano", f"{df[df['Satisfaccion_NPS']>0]['Satisfaccion_NPS'].median():.1f}")
-    m4.metric("SKUs Críticos", len(df[df['Utilidad_Total'] < 0]))
+    m1.metric("Ingresos Totales", f"${revenue:,.0f}")
+    
+    # Delta en rojo si hay pérdida, verde si hay ganancia
+    m2.metric("Utilidad Neta", f"${profit:,.0f}", 
+              delta=f"{(profit/revenue*100):.1f}% Margen" if revenue != 0 else "0%",
+              delta_color="normal" if profit >= 0 else "inverse")
+    
+    m3.metric("NPS (Mediana)", f"{df[df['Satisfaccion_NPS']>0]['Satisfaccion_NPS'].median():.1f}")
+    m4.metric("Unidades Movilizadas", f"{df['Cantidad_Vendida'].sum():,.0f}")
 
-    tab_cuant, tab_cual, tab_ia = st.tabs(["📊 Análisis Cuantitativo", "👤 Análisis Cualitativo", "🤖 Auditoría con IA"])
+    # --- TABS ---
+    tab_cuant, tab_cual, tab_ia = st.tabs(["📊 Cuantitativo", "👤 Cualitativo", "🕵️ Auditoría IA"])
 
-    # --- TAB 1: CUANTITATIVO ---
+    # 1. TAB CUANTITATIVO (AZULES Y SEMÁFORO)
     with tab_cuant:
-        st.subheader("Rendimiento Financiero y de Inventario")
+        st.subheader("Análisis Financiero y Stock")
         c1, c2 = st.columns(2)
         with c1:
+            # Gráfico de barras con escala de color semáforo (Rojo a Verde)
             fig_bar = px.bar(df.groupby('Categoria')['Utilidad_Total'].sum().reset_index(), 
-                             x='Categoria', y='Utilidad_Total', color='Utilidad_Total',
-                             color_continuous_scale='RdYlGn', template="plotly_dark", title="Rentabilidad por Categoría")
+                             x='Categoria', y='Utilidad_Total', 
+                             color='Utilidad_Total',
+                             color_continuous_scale=[COLOR_ROJO, "#FFD700", COLOR_VERDE],
+                             template="plotly_dark", title="Utilidad por Categoría")
             st.plotly_chart(fig_bar, use_container_width=True)
         with c2:
-            fig_scat = px.scatter(df, x='Stock_Actual', y='Utilidad_Total', color='Categoria',
-                                  size='Cantidad_Vendida', template="plotly_dark", title="Stock vs Utilidad")
+            # Dispersión en azules y grises
+            fig_scat = px.scatter(df, x='Stock_Actual', y='Utilidad_Total', 
+                                  color='Categoria', size='Cantidad_Vendida',
+                                  color_discrete_sequence=px.colors.sequential.Blues_r,
+                                  template="plotly_dark", title="Eficiencia de Inventario")
             st.plotly_chart(fig_scat, use_container_width=True)
 
-    # --- TAB 2: CUALITATIVO ---
+    # 2. TAB CUALITATIVO (AZULES Y GRISES)
     with tab_cual:
-        st.subheader("Sentimiento del Cliente y Logística")
+        st.subheader("Experiencia del Cliente")
         c3, c4 = st.columns(2)
         with c3:
-            fig_pie = px.pie(df, names='Estado_Envio', hole=0.4, template="plotly_dark", title="Estado de Entregas")
+            fig_pie = px.pie(df, names='Estado_Envio', hole=0.4, 
+                             color_discrete_sequence=[COLOR_AZUL, COLOR_GRIS, "#1e293b", "#334155"],
+                             template="plotly_dark", title="Distribución Logística")
             st.plotly_chart(fig_pie, use_container_width=True)
         with c4:
-            # Heatmap simple de satisfacción
-            fig_heat = px.density_heatmap(df, x='Ciudad_Destino', y='Rating_Producto', 
-                                          z='Satisfaccion_NPS', template="plotly_dark", title="Satisfacción por Ciudad")
-            st.plotly_chart(fig_heat, use_container_width=True)
-        
-        st.markdown("**Comentarios Críticos Detectados:**")
-        st.dataframe(df[df['Rating_Producto'] <= 2][['SKU_ID', 'Comentario_Texto', 'Ciudad_Destino']].head(10))
+            fig_nps = px.box(df, x='Ciudad_Destino', y='Satisfaccion_NPS',
+                             color_discrete_sequence=[COLOR_AZUL],
+                             template="plotly_dark", title="Variación NPS por Ciudad")
+            st.plotly_chart(fig_nps, use_container_width=True)
 
-    # --- TAB 3: IA ---
+    # 3. TAB IA (AUDITORÍA ESTRATÉGICA)
     with tab_ia:
-        st.subheader("🕵️ Auditoría Estratégica Automática")
+        st.subheader("Respuestas de Consultoría Estratégica")
         
-        # Desplegar las preguntas antes
         with st.container():
-            st.markdown('<div class="question-box">', unsafe_allow_html=True)
-            st.markdown("""
-            **Preguntas a Resolver:**
-            1. **Fuga de Capital:** ¿Los SKUs con margen negativo son una falla de precios Online?
-            2. **Crisis Logística:** ¿Qué zona requiere cambio inmediato de operador por bajo NPS?
-            3. **Venta Invisible:** ¿Qué impacto financiero tienen los SKUs fuera de inventario?
-            4. **Diagnóstico de Fidelidad:** ¿Por qué hay stock alto con sentimiento negativo?
-            5. **Riesgo Operativo:** ¿Qué bodegas operan a ciegas por falta de revisión?
-            """)
-            st.markdown('</div>', unsafe_allow_html=True)
+            st.markdown(f"""
+            <div class="question-box">
+            <h4 style='color:{COLOR_AZUL}'>Preguntas de Auditoría:</h4>
+            1. <b>Fuga de Capital:</b> ¿Margen negativo es falla de precios Online?<br>
+            2. <b>Crisis Logística:</b> ¿Qué zona requiere cambio de operador?<br>
+            3. <b>Venta Invisible:</b> ¿Impacto de SKUs fuera de maestro?<br>
+            4. <b>Diagnóstico Fidelidad:</b> ¿Por qué stock alto con sentimiento negativo?<br>
+            5. <b>Riesgo Operativo:</b> ¿Qué bodegas operan a ciegas?<br>
+            </div>
+            """, unsafe_allow_html=True)
 
-        if st.button("🧠 Ejecutar Consultoría IA"):
+        if st.button("🧠 Ejecutar Auditoría con IA"):
             if groq_api_key:
-                with st.spinner("IA analizando patrones de riesgo..."):
+                with st.spinner("IA procesando diagnósticos..."):
                     try:
                         client = Groq(api_key=groq_api_key)
-                        # Resumen concentrado para la IA
                         resumen = {
-                            "negativos": df[df['Utilidad_Total'] < 0][['Categoria', 'Canal_Venta', 'Utilidad_Total']].to_string(),
-                            "logistica": df.groupby('Ciudad_Destino')[['Tiempo_Entrega_Real', 'Satisfaccion_NPS']].mean().to_string(),
-                            "fantasmas_usd": df[df['Categoria'] == 'SKU_FANTASMA']['Precio_Venta_Final'].sum(),
-                            "stock_sentimiento": df.groupby('Categoria')[['Stock_Actual', 'Satisfaccion_NPS']].mean().to_string()
+                            "perdid": df[df['Utilidad_Total'] < 0][['Categoria', 'Utilidad_Total']].to_string(),
+                            "logist": df.groupby('Ciudad_Destino')[['Tiempo_Entrega_Real', 'Satisfaccion_NPS']].mean().to_string(),
+                            "fantas": df[df['Categoria'] == 'SKU_FANTASMA']['Precio_Venta_Final'].sum()
                         }
                         
-                        prompt = f"Analiza estos datos y responde las 5 preguntas de auditoría mencionadas arriba: {resumen}. Sé directo y profesional."
+                        prompt = f"Responde las 5 preguntas basándote en: {resumen}. Sé breve, usa puntos y lenguaje ejecutivo."
                         
                         chat = client.chat.completions.create(
                             model="llama-3.3-70b-versatile",
@@ -145,7 +169,7 @@ if uploaded_file:
                     except Exception as e:
                         st.error(f"Error: {e}")
             else:
-                st.warning("⚠️ Ingresa la API Key en el sidebar.")
+                st.warning("⚠️ Ingresa la API Key en el menú lateral.")
 
 else:
-    st.info("🌙 Cargue el archivo CSV para iniciar la auditoría.")
+    st.info("🌙 Cargue el archivo CSV para iluminar el dashboard.")
