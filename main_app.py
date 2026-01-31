@@ -141,3 +141,6 @@ if groq_api_key:
                 st.error(f"Error en el análisis: {e}")
 else:
     st.warning("⚠️ Configura la API Key en el menú lateral para obtener el diagnóstico de auditoría.")
+
+else:
+    st.info("🌙 Sistema listo. Cargue el archivo CSV en el panel lateral para iniciar.")
