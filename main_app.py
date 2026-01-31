@@ -5,29 +5,61 @@ import numpy as np
 from groq import Groq
 
 # --- CONFIGURACIÓN DE PÁGINA ---
-st.set_page_config(page_title="Executive Logistics Dash", layout="wide", page_icon="📈")
+st.set_page_config(page_title="Executive Dark Analytics", layout="wide", page_icon="🌙")
 
-# --- CSS PERSONALIZADO (MÉTRICAS SIN FONDO Y ESTILO LIMPIO) ---
+# --- CSS: MODO OSCURO TOTAL Y MÉTRICAS FLOTANTES ---
 st.markdown("""
     <style>
-    /* Fondo general de la app */
-    .stApp { background-color: #F8F9FA; }
+    /* Fondo oscuro para toda la aplicación */
+    .stApp {
+        background-color: #0E1117;
+        color: #FFFFFF;
+    }
 
-    /* Quitar fondo blanco y bordes a las métricas para que sean transparentes */
+    /* Forzar color blanco en títulos y textos */
+    h1, h2, h3, p, span, label {
+        color: #FFFFFF !important;
+    }
+
+    /* Quitar fondo a las métricas (Transparencia Total) */
     div[data-testid="metric-container"] {
-        background-color: rgba(0,0,0,0) !important;
+        background-color: transparent !important;
         border: none !important;
         box-shadow: none !important;
-        padding: 0px !important;
+    }
+
+    /* Estilo específico para los valores de las métricas */
+    [data-testid="stMetricValue"] {
+        color: #FFFFFF !important;
+        font-size: 32px !important;
+        font-weight: 700 !important;
     }
     
-    /* Ajuste de fuentes para métricas */
-    [data-testid="stMetricValue"] { font-size: 28px !important; color: #1e40af !important; }
-    [data-testid="stMetricLabel"] { font-size: 16px !important; color: #4b5563 !important; }
+    [data-testid="stMetricLabel"] {
+        color: #A0AEC0 !important; /* Gris claro para las etiquetas */
+    }
 
-    /* Tabs minimalistas */
-    .stTabs [data-baseweb="tab-list"] { gap: 24px; border-bottom: 1px solid #E0E0E0; }
-    .stTabs [aria-selected="true"] p { color: #1e40af !important; font-weight: bold; }
+    /* Tabs en Modo Oscuro */
+    .stTabs [data-baseweb="tab-list"] {
+        background-color: transparent;
+        border-bottom: 1px solid #30363D;
+    }
+    .stTabs [data-baseweb="tab"] p {
+        color: #8B949E !important;
+    }
+    .stTabs [aria-selected="true"] p {
+        color: #58A6FF !important;
+    }
+    .stTabs [data-baseweb="tab-highlight"] {
+        background-color: #58A6FF !important;
+    }
+
+    /* Input de API y Sidebar */
+    .stTextInput>div>div>input {
+        background-color: #161B22;
+        color: white;
+        border: 1px solid #30363D;
+    }
     </style>
 """, unsafe_allow_html=True)
 
@@ -47,90 +79,91 @@ def process_data(file):
 
 # --- SIDEBAR ---
 with st.sidebar:
-    st.title("🚜 Panel de Control")
+    st.title("🌙 Control Center")
     
-    # SECCIÓN API KEY (Reintegrada)
+    # SECCIÓN API KEY
     with st.expander("🔑 Configuración IA", expanded=True):
-        st.markdown("Ingresa tu clave para activar el análisis inteligente.")
-        groq_api_key = st.text_input("Groq API Key", type="password")
-        st.caption("[Consigue tu Key aquí](https://console.groq.com)")
+        groq_api_key = st.text_input("Groq API Key", type="password", placeholder="gsk_...")
+        st.caption("Usa tu clave de Groq para análisis predictivo.")
 
     st.divider()
-    uploaded_file = st.file_uploader("📂 Subir CSV Consolidado", type=["csv"])
+    uploaded_file = st.file_uploader("📂 Subir archivo CSV", type=["csv"])
     
     if uploaded_file:
         df_raw = process_data(uploaded_file)
-        st.subheader("Filtros")
+        st.subheader("Filtros Globales")
         
         # Filtro de Categoría
         cats = sorted(df_raw['Categoria'].unique())
         sel_cats = st.multiselect("Categorías", cats, default=cats)
         
-        # Slider de cantidad de datos
-        n_registros = st.slider("Registros a analizar", 10, len(df_raw), 500)
+        # Slider de cantidad
+        n_registros = st.slider("Volumen de datos", 50, len(df_raw), 500)
 
 # --- CUERPO PRINCIPAL ---
 if uploaded_file:
-    # Aplicar filtros y límite del slider
     df = df_raw[df_raw['Categoria'].isin(sel_cats)].head(n_registros)
 
-    st.title("📊 Intelligence Business Dashboard")
-    st.markdown(f"**Análisis actual:** {n_registros} registros filtrados por categoría.")
+    st.title("📈 Strategic Business Intelligence")
+    st.markdown("Dashboard ejecutivo con interfaz de alto contraste.")
 
-    # --- SECCIÓN CUANTITATIVA (Métricas Transparentes) ---
+    # --- MÉTRICAS (FONDO TRANSPARENTE, LETRAS BLANCAS) ---
     st.markdown("###")
     m1, m2, m3, m4 = st.columns(4)
     
     revenue = df['Precio_Venta_Final'].sum()
     profit = df['Utilidad_Total'].sum()
-    margin = (profit / revenue * 100) if revenue != 0 else 0
     
-    m1.metric("Ingresos", f"${revenue:,.0f}")
-    m2.metric("Utilidad", f"${profit:,.0f}", delta=f"{margin:.1f}%")
-    m3.metric("NPS Mediano", f"{df[df['Satisfaccion_NPS']>0]['Satisfaccion_NPS'].median():.1f}")
-    m4.metric("Unidades", f"{df['Cantidad_Vendida'].sum():,.0f}")
-
-    st.markdown("###")
+    m1.metric("Ingresos Totales", f"${revenue:,.0f}")
+    m2.metric("Utilidad Neta", f"${profit:,.0f}", delta=f"{(profit/revenue*100):.1f}%" if revenue != 0 else "0%")
+    m3.metric("NPS (Mediana)", f"{df[df['Satisfaccion_NPS']>0]['Satisfaccion_NPS'].median():.1f}")
+    m4.metric("Unidades Vendidas", f"{df['Cantidad_Vendida'].sum():,.0f}")
 
     # --- SECCIÓN IA ---
     if groq_api_key:
-        with st.container(border=True):
-            col_ia_icon, col_ia_text = st.columns([1, 6])
-            col_ia_icon.image("https://cdn-icons-png.flaticon.com/512/2040/2040946.png", width=60)
-            with col_ia_text:
-                st.subheader("✨ Análisis Estratégico AI")
-                if st.button("🧠 Generar Hallazgos con IA"):
+        st.markdown("###")
+        with st.container():
+            st.subheader("✨ Insights con Inteligencia Artificial")
+            if st.button("🧠 Generar Diagnóstico de Rentabilidad"):
+                try:
                     client = Groq(api_key=groq_api_key)
-                    # Resumen simplificado para la IA
-                    resumen = df.groupby('Categoria')['Utilidad_Total'].sum().sort_values().to_string()
+                    resumen_ia = df.groupby('Categoria')['Utilidad_Total'].sum().to_string()
                     
-                    try:
-                        chat = client.chat.completions.create(
-                            model="llama-3.3-70b-versatile",
-                            messages=[{"role": "user", "content": f"Analiza esta utilidad por categoría y detecta riesgos: {resumen}"}]
-                        )
-                        st.markdown(chat.choices[0].message.content)
-                    except Exception as e:
-                        st.error(f"Error de conexión: {e}")
+                    chat = client.chat.completions.create(
+                        model="llama-3.3-70b-versatile",
+                        messages=[{"role": "system", "content": "Eres un analista financiero. Sé conciso."},
+                                  {"role": "user", "content": f"Basado en estos datos de utilidad: {resumen_ia}, ¿cuál es el riesgo principal?"}]
+                    )
+                    st.info(chat.choices[0].message.content)
+                except Exception as e:
+                    st.error(f"Error de API: {e}")
 
-    # --- SECCIÓN GRÁFICA Y TABS ---
+    # --- TABS GRÁFICOS ---
     st.markdown("###")
-    t1, t2 = st.tabs(["📈 Visualización", "📋 Auditoría"])
+    t1, t2 = st.tabs(["📊 Visualización de Datos", "📋 Registro de Auditoría"])
 
     with t1:
-        c_a, c_b = st.columns(2)
-        with c_a:
+        c1, c2 = st.columns(2)
+        
+        with c1:
+            # Gráfico de barras ajustado a fondo oscuro
             fig_bar = px.bar(df.groupby('Categoria')['Utilidad_Total'].sum().reset_index(), 
-                             x='Categoria', y='Utilidad_Total', color='Utilidad_Total',
-                             color_continuous_scale='RdYlGn', template="plotly_white")
+                             x='Categoria', y='Utilidad_Total',
+                             color='Utilidad_Total', 
+                             color_continuous_scale='RdYlGn',
+                             template="plotly_dark") # PLANTILLA OSCURA
             st.plotly_chart(fig_bar, use_container_width=True)
-        with c_b:
-            fig_pie = px.pie(df, names='Estado_Envio', title="Estado de Logística", hole=0.4)
-            st.plotly_chart(fig_pie, use_container_width=True)
+            
+        with c2:
+            fig_scatter = px.scatter(df, x='Tiempo_Entrega_Real', y='Satisfaccion_NPS', 
+                                     color='Categoria', size='Cantidad_Vendida',
+                                     template="plotly_dark")
+            st.plotly_chart(fig_scatter, use_container_width=True)
 
     with t2:
-        st.write("**Alertas: Transacciones con Utilidad Negativa**")
-        st.dataframe(df[df['Utilidad_Total'] < 0][['Transaccion_ID', 'SKU_ID', 'Utilidad_Total', 'Ciudad_Destino']].sort_values('Utilidad_Total'))
+        st.markdown("**Transacciones Críticas (Utilidad < 0)**")
+        # Estilizar el dataframe para que combine con el fondo oscuro
+        st.dataframe(df[df['Utilidad_Total'] < 0][['Transaccion_ID', 'SKU_ID', 'Utilidad_Total', 'Ciudad_Destino']].style.background_gradient(cmap='Reds'))
 
 else:
-    st.info("👋 Por favor, carga el archivo CSV en el panel lateral para visualizar los datos.")
+    st.info("🌙 Bienvenido. Por favor, carga un archivo CSV en el panel lateral para iluminar el dashboard.")
