@@ -216,7 +216,7 @@ if uploaded_file:
         df_inv3=df_inv2[~filas_a_eliminar].copy()
         
         df_inv=df_inv3
-        print("mantenemos aprox el "," ",(df_inv.shape[0]/df_invO.shape[0])*100," ","porciento de filas")
+        st.write("mantenemos aprox el "," ",(df_inv.shape[0]/df_invO.shape[0])*100," ","porciento de filas")
 
     
         st.write("En el DataSet despues de remover los SKU fantasma hay"," ",df.dropna().shape[0]," ","registros de",df.shape[0]," ","registros")
