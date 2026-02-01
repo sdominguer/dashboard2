@@ -103,32 +103,99 @@ if uploaded_file:
 
     tab1, tab2, tab3, tab4 = st.tabs(["📊 Cuantitativo", "👤 Cualitativo", "🕵️ Auditoría IA"," 📋 Disclaimers"])
 
+    # --- TAB 1: CUANTITATIVO ---
     with tab1:
-        st.subheader("Análisis de Archivos Teams")
-        # EJEMPLO: Mostrar datos de Teams cargados silenciosamente
-        st.write("Vista rápida Archivo 1 de Teams (Ventas Históricas):")
-        st.dataframe(df_teams_1.head(3), use_container_width=True)
-        
+        st.subheader("Rendimiento Financiero")
         c1, c2 = st.columns(2)
         with c1:
             fig_bar = px.bar(df.groupby('Categoria')['Utilidad_Total'].sum().reset_index(), 
-                            x='Categoria', y='Utilidad_Total', color='Utilidad_Total',
-                            color_continuous_scale=[COLOR_ROJO, "#FFD700", COLOR_VERDE],
-                            template="plotly_dark", title="Rentabilidad (Local)")
+                             x='Categoria', y='Utilidad_Total', color='Utilidad_Total',
+                             color_continuous_scale=[COLOR_ROJO, "#FFD700", COLOR_VERDE],
+                             template="plotly_dark", title="Rentabilidad por Segmento")
             st.plotly_chart(fig_bar, use_container_width=True)
-        # (Aquí puedes agregar más gráficas que usen df_teams_2 o df_teams_3)
+        with c2:
+            fig_stock = px.scatter(df, x='Stock_Actual', y='Utilidad_Total', color='Categoria',
+                                   color_discrete_sequence=px.colors.sequential.Blues_r,
+                                   template="plotly_dark", title="Relación Stock vs Ganancia")
+            st.plotly_chart(fig_stock, use_container_width=True)
 
+    # --- TAB 2: CUALITATIVO ---
+    with tab2:
+        st.subheader("Análisis de Servicio")
+        c3, c4 = st.columns(2)
+        with c3:
+            fig_pie = px.pie(df, names='Estado_Envio', hole=0.4, 
+                             color_discrete_sequence=[COLOR_AZUL, COLOR_GRIS, "#1e293b"],
+                             template="plotly_dark", title="Estado de Envíos")
+            st.plotly_chart(fig_pie, use_container_width=True)
+        with c4:
+            fig_nps = px.box(df, x='Ciudad_Destino', y='Satisfaccion_NPS', 
+                             color_discrete_sequence=[COLOR_AZUL],
+                             template="plotly_dark", title="Distribución NPS por Ciudad")
+            st.plotly_chart(fig_nps, use_container_width=True)
+
+    # --- TAB 3: AUDITORÍA CON IA ---
     with tab3:
-        # Tu lógica de Groq (Mantenida)
         st.subheader("Respuestas de Consultoría Estratégica")
+        
+        st.markdown(f"""
+        <div class="question-box">
+        <h4 style='color:{COLOR_AZUL}'>Preguntas que la IA resolverá:</h4>
+        1. <b>Fuga de Capital:</b> ¿Margen negativo es falla de precios Online?<br>
+        2. <b>Crisis Logística:</b> ¿Qué zona requiere cambio de operador?<br>
+        3. <b>Venta Invisible:</b> ¿Impacto de SKUs fuera de maestro?<br>
+        4. <b>Diagnóstico Fidelidad:</b> ¿Por qué stock alto con sentimiento negativo?<br>
+        5. <b>Riesgo Operativo:</b> ¿Qué bodegas operan a ciegas?
+        </div>
+        """, unsafe_allow_html=True)
+
         if st.button("🧠 Ejecutar Diagnóstico Maestro"):
             if groq_key:
-                # ... (resto de tu lógica de Groq igual)
-                st.info("Diagnóstico procesado correctamente.")
+                with st.spinner("Analizando micro-datos y tendencias..."):
+                    try:
+                        client = Groq(api_key=groq_key)
+                        
+                        # Datos consolidados para que la IA no alucine
+                        fuga = df[df['Utilidad_Total'] < 0].groupby('Canal_Venta')['Utilidad_Total'].sum().to_dict()
+                        logistica = df.groupby('Ciudad_Destino')[['Tiempo_Entrega_Real', 'Satisfaccion_NPS']].mean().to_dict()
+                        fantasmas = df[df['Categoria'].str.contains('Fantasma|No Catalogado', na=False)]['Precio_Venta_Final'].sum()
+                        paradoja = df.groupby('Categoria')[['Stock_Actual', 'Satisfaccion_NPS']].mean().to_dict()
+
+                        prompt = f"""
+                        Eres un Auditor Senior. Basado en estos datos REALES, responde las 5 preguntas de la caja anterior:
+                        - Pérdidas por Canal: {fuga}
+                        - Logística por Ciudad: {logistica}
+                        - Venta SKUs Fantasma: ${fantasmas}
+                        - Stock vs NPS: {paradoja}
+                        - Ingreso Total: ${rev_total}
+
+                        Instrucciones:
+                        - Sé directo, crítico y profesional.
+                        - Usa Markdown con negritas.
+                        - Si el impacto de SKUs fantasma es > 0, calcula su % frente al ingreso total.
+                        """
+                        
+                        chat = client.chat.completions.create(
+                            model="llama-3.3-70b-versatile",
+                            messages=[{"role": "user", "content": prompt}],
+                            temperature=0.2
+                        )
+                        st.markdown(f'<div class="ai-container">{chat.choices[0].message.content}</div>', unsafe_allow_html=True)
+                    except Exception as e:
+                        st.error(f"Error de conexión: {e}")
             else:
                 st.warning("⚠️ Ingresa la API Key en el menú lateral.")
-
-    # (El resto de tus Tabs 2 y 4 se mantienen iguales usando 'df')
+    # --- TAB 3: ELIMINACION DE LOS DATOS ---
+    with tab4:
+        st.subheader("Limpieza del dataset")
     
+        st.write("En el DataSet despues de remover los SKU fantasma hay"," ",df.dropna().shape[0]," ","registros de",df.shape[0]," ","registros")
+        st.write("En el segundo join tomando elementos nulos del primero obtengo"," ",df.shape[0]," ","registros pero descartando las Transaccion_ID fantasma (que no estan en la tabla de Feedbacks) y \n los SKU_ID Fantasma  obtengo",df.dropna().shape[0]," ","registros", "si eliminamos datos fantasma mantendriamos"," ",(df.dropna().shape[0]/df.shape[0])*100,"\n % de los datos")
+        df_sku=(pd.DataFrame(df.groupby('SKU_ID')['Ultima_Revision'].count().reset_index()))
+        st.write("tenemos"," ",df_sku[df_sku['Ultima_Revision']==0].reset_index().shape[0]," ","SKU Fantasmas")
+        df_tra=(pd.DataFrame(df.groupby('Transaccion_ID')['Ultima_Revision'].count().reset_index()))
+        st.write("tenemos"," ",df_tra[df_tra['Ultima_Revision']==0].reset_index().shape[0]," ","transacciones Fantasmas")
+
 else:
-    st.info("🌙 Sistema en espera. Por favor cargue el archivo CSV en el panel lateral para activar la sincronización con Teams.")
+    st.info("🌙 Sistema en espera. Por favor cargue el archivo CSV en el panel lateral.")
+
