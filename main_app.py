@@ -272,123 +272,74 @@ if uploaded_file:
                 """, unsafe_allow_html=True)
 
 
-                # 1. Convertimos la columna a numérica (forzando errores a NaN)
-                # Esto convierte "25-30 días" o "Inmediato" en NaN temporalmente para calcular la mediana
-                lead_time_numerico = pd.to_numeric(df_inv['Lead_Time_Dias'], errors='coerce')
-                
-                # 2. Calculamos la mediana de los valores que SÍ son números
-                mediana_lead = lead_time_numerico.median()
-                
-                # 3. Llenamos los nulos originales en df_inv con esa mediana
-                # Nota: Esto solo afectará a los que quedaron después de tu limpieza anterior
-                df_inv['Lead_Time_Dias'] = df_inv['Lead_Time_Dias'].fillna(mediana_lead)
-                
-                # 4. (Opcional) Si también quieres reemplazar la palabra texto "nan" que mencionamos antes:
-                df_inv['Lead_Time_Dias'] = df_inv['Lead_Time_Dias'].replace('nan', mediana_lead)
-                
-                print(f"La mediana calculada fue: {mediana_lead}")
-                print(f"Valores nulos restantes: {df_inv['Lead_Time_Dias'].isna().sum()}")
+        # --- SECCIÓN: TRANSFORMACIÓN Y ENRIQUECIMIENTO ---
+        st.markdown("## ⚙️ Procesamiento y Cruce de Datos")
         
-                # Diccionario de normalización usando Regex
-                mapa_categorias = {
-                    r'(?i)smart-?phones?': 'Smartphone',
-                    r'(?i)laptops?': 'Laptop',
-                    r'(?i)monitores?': 'Monitor',
-                    r'(?i)accesorios?': 'Accesorio',
-                    r'\?{3}': 'No Definido'
-                }
-                
-                # Aplicar la limpieza
-                for patron, reemplazo in mapa_categorias.items():
-                    df_inv['Categoria'] = df_inv['Categoria'].str.replace(patron, reemplazo, regex=True)
-                
-                print(df_inv['Categoria'].unique())
+        # 1. IMPUTACIÓN Y LIMPIEZA DE INVENTARIO
+        # Convertimos lead time a numérico para calcular mediana
+        lead_time_numerico = pd.to_numeric(df_inv['Lead_Time_Dias'], errors='coerce')
+        mediana_lead = lead_time_numerico.median()
         
-                        # 1. Corregir Cantidad_Vendida: Valores negativos se convierten en 0
-                # (También podrías usar .abs() si asumes que el número es correcto pero el signo no)
-                df_trans['Cantidad_Vendida'] = df_trans['Cantidad_Vendida'].clip(lower=0)
-                
-                # 2. Guardar archivos actualizados en el entorno
-                df_inv.to_csv('inventario_central_limpio.csv', index=False)
-                df_trans.to_csv('transacciones_logistica_limpias.csv', index=False)
-                df_feed.to_csv('feedback_clientes_limpio.csv', index=False)
+        df_inv['Lead_Time_Dias'] = df_inv['Lead_Time_Dias'].fillna(mediana_lead)
+        df_inv['Lead_Time_Dias'] = df_inv['Lead_Time_Dias'].replace('nan', mediana_lead)
         
-                        # 1. Reemplazamos los 999 por NaN para que no afecten el cálculo
-                df_trans['Tiempo_Entrega_Real'] = df_trans['Tiempo_Entrega_Real'].replace(999, np.nan)
-                
-                # 2. Calculamos la mediana de los tiempos reales (ej. 3 o 5 días)
-                mediana_entrega = df_trans['Tiempo_Entrega_Real'].median()
-                
-                # 3. Imputamos la mediana en esos huecos
-                df_trans['Tiempo_Entrega_Real'] = df_trans['Tiempo_Entrega_Real'].fillna(mediana_entrega)
+        # Normalización de Categorías con Regex
+        mapa_categorias = {
+            r'(?i)smart-?phones?': 'Smartphone',
+            r'(?i)laptops?': 'Laptop',
+            r'(?i)monitores?': 'Monitor',
+            r'(?i)accesorios?': 'Accesorio',
+            r'\?{3}': 'No Definido'
+        }
+        for patron, reemplazo in mapa_categorias.items():
+            df_inv['Categoria'] = df_inv['Categoria'].str.replace(patron, reemplazo, regex=True)
         
-                        # 1. Definimos el rango válido (1 a 5)
-                # Usamos el método .between() que es muy eficiente en Pandas
-                rango_valido = df_feed['Rating_Producto'].between(1, 5)
-                
-                # 2. Mantenemos solo las filas que cumplen la condición
-                df_feed = df_feed[rango_valido].copy()
-                
-                # 3. Verificación de seguridad
-                print(f"Rating mínimo: {df_feed['Rating_Producto'].min()}")
-                print(f"Rating máximo: {df_feed['Rating_Producto'].max()}")
-                print(f"Ahora tienes {len(df_feed)} filas con ratings reales.")
+        # 2. LIMPIEZA DE TRANSACCIONES Y FEEDBACK
+        df_trans['Cantidad_Vendida'] = df_trans['Cantidad_Vendida'].clip(lower=0)
+        df_trans['Tiempo_Entrega_Real'] = df_trans['Tiempo_Entrega_Real'].replace(999, np.nan)
+        mediana_entrega = df_trans['Tiempo_Entrega_Real'].median()
+        df_trans['Tiempo_Entrega_Real'] = df_trans['Tiempo_Entrega_Real'].fillna(mediana_entrega)
         
-                        # 1. Convertimos la columna a numérica (forzando errores a NaN)
-                # Esto convierte "25-30 días" o "Inmediato" en NaN temporalmente para calcular la mediana
-                lead_time_numerico = pd.to_numeric(df_inv['Lead_Time_Dias'], errors='coerce')
-                
-                # 2. Calculamos la mediana de los valores que SÍ son números
-                mediana_lead = lead_time_numerico.median()
-                
-                # 3. Llenamos los nulos originales en df_inv con esa mediana
-                # Nota: Esto solo afectará a los que quedaron después de tu limpieza anterior
-                df_inv['Lead_Time_Dias'] = df_inv['Lead_Time_Dias'].fillna(mediana_lead)
-                
-                # 4. (Opcional) Si también quieres reemplazar la palabra texto "nan" que mencionamos antes:
-                df_inv['Lead_Time_Dias'] = df_inv['Lead_Time_Dias'].replace('nan', mediana_lead)
+        # Feedback: Reglas de Rating y Edad
+        mediana_rating = df_feed.loc[df_feed['Rating_Producto'].between(1, 5), 'Rating_Producto'].median()
+        filas_para_eliminar = (~df_feed['Rating_Producto'].between(1, 5)) & (~df_feed['Edad_Cliente'].between(0, 100))
+        df_feed = df_feed[~filas_para_eliminar].copy()
         
-                        # 1. Calculamos la mediana de los ratings válidos (1 a 5)
-                mediana_rating = df_feed.loc[df_feed['Rating_Producto'].between(1, 5), 'Rating_Producto'].median()
-                
-                # 2. Definimos las condiciones de error
-                # El signo ~ significa "NO", es decir, que NO esté en el rango
-                rating_fuera = ~df_feed['Rating_Producto'].between(1, 5)
-                edad_fuera = ~df_feed['Edad_Cliente'].between(0, 100)
-                
-                # --- REGLA 1: ELIMINAR FILA ---
-                # Si Rating está mal Y la Edad está mal (ej. Rating 99 y Edad 195)
-                filas_para_eliminar = rating_fuera & edad_fuera
-                df_feed = df_feed[~filas_para_eliminar].copy()
-                
-                # --- REGLA 2: CAMBIAR POR MEDIANA ---
-                # Si el rating está mal pero la edad está BIEN (ej. Rating 99 y Edad 25)
-                cond_imputar = (~df_feed['Rating_Producto'].between(1, 5)) & (df_feed['Edad_Cliente'].between(0, 100))
-                df_feed.loc[cond_imputar, 'Rating_Producto'] = mediana_rating
+        cond_imputar = (~df_feed['Rating_Producto'].between(1, 5)) & (df_feed['Edad_Cliente'].between(0, 100))
+        df_feed.loc[cond_imputar, 'Rating_Producto'] = mediana_rating
         
-                ## vamos a hacer el join de las 3 tablas
+        # 3. CONSOLIDACIÓN FINAL (JOINS)
+        # Join 1: Transacciones + Inventario
+        df_rich = pd.merge(df_trans, df_inv, on='SKU_ID', how='left')
+        # Join 2: Resultado anterior + Feedback
+        df_full = pd.merge(df_rich, df_feed, on='Transaccion_ID', how='left')
         
-                df_rich=pd.merge(df_trans,df_inv,on='SKU_ID',how='left')
-                print("en el primer join obtengo"," ",df_rich.shape[0]," ","de registros pero descartando los SKU_ID fantasma que no estan en la tabla de productos obtengo",df_rich.dropna().shape[0]," ","registros")
-                df_full=pd.merge(df_rich,df_feed,on='Transaccion_ID',how='left')
-                print("en el segundo join tomando elementos nulos del primero obtengo"," ",df_full.shape[0]," ","registros pero descartando las Transaccion_ID fantasma (que no estan en la tabla de Feedbacks) y \n los SKU_ID Fantasma  obtengo",df_full.dropna().shape[0]," ","registros", "si eliminamos datos fantasma mantendriamos"," ",(df_full.dropna().shape[0]/df_full.shape[0])*100,"\n % de los datos")
-                #print(df_full)
+        # --- DISEÑO DEL REPORTE DE INTEGRIDAD EN STREAMLIT ---
+        with st.expander("📊 Ver Reporte de Consolidación y Datos Fantasma", expanded=True):
+            c1, c2 = st.columns(2)
+            
+            with c1:
+                st.info("**Análisis de Coincidencias (Merge)**")
+                total_inicial = df_full.shape[0]
+                datos_limpios = df_full.dropna().shape[0]
+                pct_mantenido = (datos_limpios / total_inicial) * 100
                 
-                df_sku=(pd.DataFrame(df_full.groupby('SKU_ID')['Ultima_Revision'].count().reset_index()))
-                
-                print("tenemos"," ",df_sku[df_sku['Ultima_Revision']==0].reset_index().shape[0]," ","SKU Fantasmas")
-                
-                df_tra=(pd.DataFrame(df_full.groupby('Transaccion_ID')['Ultima_Revision'].count().reset_index()))
-                
-                print("tenemos"," ",df_tra[df_tra['Ultima_Revision']==0].reset_index().shape[0]," ","transacciones Fantasmas")
-    
+                st.write(f"✅ Registros Totales: `{total_inicial}`")
+                st.write(f"🧹 Registros Saneados (Sin nulos): `{datos_limpios}`")
+                st.metric("Integridad del Cruce", f"{pct_mantenido:.2f}%", delta_color="normal")
         
-                st.write("En el DataSet despues de remover los SKU fantasma hay"," ",df.dropna().shape[0]," ","registros de",df.shape[0]," ","registros")
-                st.write("En el segundo join tomando elementos nulos del primero obtengo"," ",df.shape[0]," ","registros pero descartando las Transaccion_ID fantasma (que no estan en la tabla de Feedbacks) y \n los SKU_ID Fantasma  obtengo",df.dropna().shape[0]," ","registros", "si eliminamos datos fantasma mantendriamos"," ",(df.dropna().shape[0]/df.shape[0])*100,"\n % de los datos")
-                df_sku=(pd.DataFrame(df.groupby('SKU_ID')['Ultima_Revision'].count().reset_index()))
-                st.write("tenemos"," ",df_sku[df_sku['Ultima_Revision']==0].reset_index().shape[0]," ","SKU Fantasmas")
-                df_tra=(pd.DataFrame(df.groupby('Transaccion_ID')['Ultima_Revision'].count().reset_index()))
-                st.write("tenemos"," ",df_tra[df_tra['Ultima_Revision']==0].reset_index().shape[0]," ","transacciones Fantasmas")
+            with c2:
+                st.warning("**Detección de Registros Fantasma**")
+                # SKU Fantasmas
+                df_sku_count = df_full.groupby('SKU_ID')['Ultima_Revision'].count().reset_index()
+                sku_fantasmas = df_sku_count[df_sku_count['Ultima_Revision'] == 0].shape[0]
+                
+                # Transacciones Fantasmas
+                df_tra_count = df_full.groupby('Transaccion_ID')['Ultima_Revision'].count().reset_index()
+                tra_fantasmas = df_tra_count[df_tra_count['Ultima_Revision'] == 0].shape[0]
+                
+                st.write(f"👻 SKU no catalogados: `{sku_fantasmas}`")
+                st.write(f"📑 Transacciones sin Feedback: `{tra_fantasmas}`")
 
 else:
     st.info("🌙 Sistema en espera. Por favor cargue el archivo CSV en el panel lateral.")
