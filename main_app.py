@@ -223,7 +223,7 @@ if uploaded_file:
             p1 = (df_inv1.shape[0]/df_invO.shape[0])*100
             p2 = (df_inv2.shape[0]/df_invO.shape[0])*100
             p3 = (df_inv3.shape[0]/df_invO.shape[0])*100
-            p_final = (df_inv.shape[0]/df_invO.shape[0])*100
+            p_final = (df_inv3.shape[0]/df_invO.shape[0])*100
         
             with col_a:
                 st.metric("Filtro Multicondición", f"{p1:.1f}%", help="Categoría ??? + Stock Negativo + Sin Lead Time")
