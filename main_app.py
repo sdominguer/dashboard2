@@ -211,7 +211,7 @@ if uploaded_file:
             
             # Creamos columnas para mostrar el progreso de forma visual
             col_a, col_b, col_c = st.columns(3)
-            
+            df_inv1=df_inv[~filas_a_eliminar].copy()
             # Cálculo de porcentajes para reusar
             p1 = (df_inv1.shape[0]/df_invO.shape[0])*100
             p2 = (df_inv2.shape[0]/df_invO.shape[0])*100
