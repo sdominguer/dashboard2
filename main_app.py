@@ -233,14 +233,15 @@ if uploaded_file:
                 st.metric("Filtro Stock Crítico", f"{p3:.1f}%", help="Categoría ??? + Stock Inexistente")
         
             # Barra de estado final
-            st.write("**Integridad Final del Dataset:**")
+            st.write("**Integridad Final de la tabla:**")
             st.progress(p_final / 100)
-            st.markdown(f"> **Conclusión:** Se ha preservado el **{p_final:.2f}%** de la data original tras aplicar las reglas de negocio.")
+            st.markdown(f"> **Conclusión:** Se ha preservado el **{p_final:.2f}%** de la data original de inventarios tras aplicar las reglas de negocio.")
         
         st.divider()
         
         # Sección de Imputación con diseño de "Pasos"
         st.markdown(f"### 🛠️ Protocolo de Imputación de Datos")
+           st.info("📊 **Fase 2: Imputacion: sobre todas las tablas del dataset**")
         with st.expander("Ver detalles del proceso técnico", expanded=True):
             
             c1, c2, c3 = st.columns([1, 1, 1])
