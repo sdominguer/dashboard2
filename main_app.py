@@ -242,11 +242,11 @@ if uploaded_file:
         # Sección de Imputación con diseño de "Pasos"
         st.markdown(f"### 🛠️ Protocolo de Imputación de Datos")
            
-            with st.expander("Ver detalles del proceso técnico", expanded=True):
+         with st.expander("Ver detalles del proceso técnico", expanded=True):
                 
-                c1, c2, c3 = st.columns([1, 1, 1])
+            c1, c2, c3 = st.columns([1, 1, 1])
                 
-                with c1:
+            with c1:
                     st.markdown(f"""
                     <div style="background-color:#161B22; padding:15px; border-radius:10px; border-top: 3px solid {COLOR_AZUL}">
                     <h5 style="margin:0">1. Estandarización</h5>
@@ -254,7 +254,7 @@ if uploaded_file:
                     </div>
                     """, unsafe_allow_html=True)
             
-                with c2:
+             with c2:
                     st.markdown(f"""
                     <div style="background-color:#161B22; padding:15px; border-radius:10px; border-top: 3px solid {COLOR_VERDE}">
                     <h5 style="margin:0">2. Análisis Estadístico</h5>
@@ -262,7 +262,7 @@ if uploaded_file:
                     </div>
                     """, unsafe_allow_html=True)
             
-                with c3:
+            with c3:
                     st.markdown(f"""
                     <div style="background-color:#161B22; padding:15px; border-radius:10px; border-top: 3px solid #FFD700">
                     <h5 style="margin:0">3. Regex Parsing</h5>
