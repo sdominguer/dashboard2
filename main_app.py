@@ -207,7 +207,7 @@ if uploaded_file:
 
         # Usamos un contenedor con borde para agrupar la limpieza
         with st.container():
-            st.info("📊 **Fase 1: Eliminación de Registros Inconsistentes**")
+            st.info("📊 **Fase 1: Eliminación de Registros Inconsistentes: Tabla de Inventarios**")
             
             # Creamos columnas para mostrar el progreso de forma visual
             col_a, col_b, col_c = st.columns(3)
