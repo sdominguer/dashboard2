@@ -207,22 +207,30 @@ if uploaded_file:
         
         # 3. Mantenemos solo lo que NO cumple la combinación (usando el signo ~)
         df_inv1=df_inv[~filas_a_eliminar].copy()
-        st.write("1. Eliminamos filas que cumplan: Simultaneamente condicones de categoria= ???, stock negativo y/o en blanco y sin datos de lead_time ... "," ",(df_inv1.shape[0]/df_invO.shape[0])*100," "," porciento de filas mantenidas en el archivo de inventarios")
+        st.write("1. Eliminamos filas que cumplían: Simultaneamente condicones de categoria= ???, stock negativo y/o en blanco y sin datos de lead_time ... "," ",(df_inv1.shape[0]/df_invO.shape[0])*100," "," porciento de filas mantenidas en el archivo de inventarios")
 
         filas_a_eliminar = cond_categoria & cond_lead_time
 
         # 3. Mantenemos solo lo que NO cumple la combinación (usando el signo ~)
         df_inv2=df_inv1[~filas_a_eliminar].copy()
-        st.write("2. Eliminamos filas que cumplan con: Simultaneamente condicones de categoria= ??? y sin datos de lead time ..."," ",(df_inv2.shape[0]/df_invO.shape[0])*100," "," porciento de filas mantenidas en el archivo de inventarios")
+        st.write("2. Eliminamos filas que cumplían con: Simultaneamente condicones de categoria= ??? y sin datos de lead time ..."," ",(df_inv2.shape[0]/df_invO.shape[0])*100," "," porciento de filas mantenidas en el archivo de inventarios")
 
         filas_a_eliminar = cond_categoria & cond_stock
 
         # 3. Mantenemos solo lo que NO cumple la combinación (usando el signo ~)
         df_inv3=df_inv2[~filas_a_eliminar].copy()
-        st.write("3. Eliminamos filas que cumplan con: Simultaneamente  condicones de categoria= ??? y stock negativo o inexistente ..."," ",(df_inv3.shape[0]/df_invO.shape[0])*100," "," porciento de filas mantenidas en el archivo de inventarios")
+        st.write("3. Eliminamos filas que cumplían con: Simultaneamente  condicones de categoria= ??? y stock negativo o inexistente ..."," ",(df_inv3.shape[0]/df_invO.shape[0])*100," "," porciento de filas mantenidas en el archivo de inventarios")
         
         df_inv=df_inv3
         st.write("Conclusión: Mantenemos aprox el ... "," ",(df_inv.shape[0]/df_invO.shape[0])*100," ","porciento de filas en el archivo de inventarios")
+
+        st.write("ESTAS FUERON LAS CONDICONES PARA IMPUTAR LOS DATOS DE INVENTARIO...")
+
+        st.write("# 1. Convertimos la columna a numérica (forzando errores a NaN) # Esto convierte "25-30 días" o "Inmediato" en NaN temporalmente para calcular la mediana")
+
+        st.write("# 2. # 2. Calculamos la mediana de los valores que SÍ son números")
+        
+        st.write("# 3. # 2. Creamos expresiones regulares en las categorias")
 
     
         st.write("En el DataSet despues de remover los SKU fantasma hay"," ",df.dropna().shape[0]," ","registros de",df.shape[0]," ","registros")
