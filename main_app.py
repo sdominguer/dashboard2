@@ -277,7 +277,7 @@ if uploaded_file:
         with st.expander("Ver detalles del proceso ", expanded=True):
                 # 1. IMPUTACIÓN Y LIMPIEZA DE INVENTARIO
                 # Convertimos lead time a numérico para calcular mediana
-                lead_time_numerico = pd.to_numeric(p_final['Lead_Time_Dias'], errors='coerce')
+                lead_time_numerico = pd.to_numeric(df_inv['Lead_Time_Dias'], errors='coerce')
                 mediana_lead = lead_time_numerico.median()
                 
                 df_inv['Lead_Time_Dias'] = df_inv['Lead_Time_Dias'].fillna(mediana_lead)
