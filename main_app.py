@@ -191,6 +191,7 @@ if uploaded_file:
 
 
         df_invO=df_t2
+        df_inv=df_t2
 
         # 1. Definimos las máscaras (condiciones)
         cond_categoria = (df_inv['Categoria'] == '???')
