@@ -204,22 +204,22 @@ if uploaded_file:
         
         # 3. Mantenemos solo lo que NO cumple la combinación (usando el signo ~)
         df_inv1=df_inv[~filas_a_eliminar].copy()
-        st.write("Eliminamos filas que cumplan con: condicones de categoria= ???, stock negativo y en blanco y sin datos de lead_time "," ",(df_inv1.shape[0]/df_invO.shape[0])*100," "," porciento de filas eliminadas en el archivo de inventarios")
+        st.write("1. Eliminamos filas que cumplan con: condicones de categoria= ???, stock negativo y en blanco y sin datos de lead_time "," ",(df_inv1.shape[0]/df_invO.shape[0])*100," "," porciento de filas mantenidas en el archivo de inventarios")
 
         filas_a_eliminar = cond_categoria & cond_lead_time
 
         # 3. Mantenemos solo lo que NO cumple la combinación (usando el signo ~)
         df_inv2=df_inv1[~filas_a_eliminar].copy()
-        st.write("Eliminamos filas que cumplan con: condicones de categoria= ??? y sin datos de lead time "," ",(df_inv2.shape[0]/df_invO.shape[0])*100," "," porciento de filas eliminadas en el archivo de inventarios")
+        st.write("2. Eliminamos filas que cumplan con: condicones de categoria= ??? y sin datos de lead time "," ",(df_inv2.shape[0]/df_invO.shape[0])*100," "," porciento de filas mantenidas en el archivo de inventarios")
 
         filas_a_eliminar = cond_categoria & cond_stock
 
         # 3. Mantenemos solo lo que NO cumple la combinación (usando el signo ~)
         df_inv3=df_inv2[~filas_a_eliminar].copy()
-        st.write("Eliminamos filas que cumplan con: condicones de categoria= ??? y stock negativo o inexistente "," ",(df_inv3.shape[0]/df_invO.shape[0])*100," "," porciento de filas eliminadas en el archivo de inventarios")
+        st.write("3. Eliminamos filas que cumplan con: condicones de categoria= ??? y stock negativo o inexistente "," ",(df_inv3.shape[0]/df_invO.shape[0])*100," "," porciento de filas mantenidas en el archivo de inventarios")
         
         df_inv=df_inv3
-        st.write("Mantenemos aprox el "," ",(df_inv.shape[0]/df_invO.shape[0])*100," ","porciento de filas en el archivo de inventarios")
+        st.write("Conclusión: Mantenemos aprox el "," ",(df_inv.shape[0]/df_invO.shape[0])*100," ","porciento de filas en el archivo de inventarios")
 
     
         st.write("En el DataSet despues de remover los SKU fantasma hay"," ",df.dropna().shape[0]," ","registros de",df.shape[0]," ","registros")
