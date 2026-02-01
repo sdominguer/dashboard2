@@ -226,7 +226,7 @@ if uploaded_file:
 
         st.write("ESTAS FUERON LAS CONDICONES PARA IMPUTAR LOS DATOS DE INVENTARIO...")
 
-        st.write("1. Convertimos la columna a numérica (forzando errores a NaN) # Esto convierte "25-30 días" o "Inmediato" en NaN temporalmente para calcular la mediana")
+        st.write("1. Convertimos la columna a numérica (forzando errores a NaN)  Esto convierte 25-30 días o Inmediato en NaN temporalmente para calcular la mediana")
 
         st.write("2. Calculamos la mediana de los valores que SÍ son números")
         
