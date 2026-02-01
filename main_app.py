@@ -203,34 +203,64 @@ if uploaded_file:
         filas_a_eliminar = cond_categoria & cond_stock & cond_lead_time
         
 
-        st.write("ESTAS FUERON LAS CONDICONES PARA LIMPIAR LOS DATOS DE INVENTARIO...")
+        st.caption("Proceso automático de filtrado y depuración de datos provenientes de Teams")
+
+        # Usamos un contenedor con borde para agrupar la limpieza
+        with st.container():
+            st.info("📊 **Fase 1: Eliminación de Registros Inconsistentes**")
+            
+            # Creamos columnas para mostrar el progreso de forma visual
+            col_a, col_b, col_c = st.columns(3)
+            
+            # Cálculo de porcentajes para reusar
+            p1 = (df_inv1.shape[0]/df_invO.shape[0])*100
+            p2 = (df_inv2.shape[0]/df_invO.shape[0])*100
+            p3 = (df_inv3.shape[0]/df_invO.shape[0])*100
+            p_final = (df_inv.shape[0]/df_invO.shape[0])*100
         
-        # 3. Mantenemos solo lo que NO cumple la combinación (usando el signo ~)
-        df_inv1=df_inv[~filas_a_eliminar].copy()
-        st.write("1. Eliminamos filas que cumplían: Simultaneamente condicones de categoria= ???, stock negativo y/o en blanco y sin datos de lead_time ... "," ",(df_inv1.shape[0]/df_invO.shape[0])*100," "," porciento de filas mantenidas en el archivo de inventarios")
-
-        filas_a_eliminar = cond_categoria & cond_lead_time
-
-        # 3. Mantenemos solo lo que NO cumple la combinación (usando el signo ~)
-        df_inv2=df_inv1[~filas_a_eliminar].copy()
-        st.write("2. Eliminamos filas que cumplían con: Simultaneamente condicones de categoria= ??? y sin datos de lead time ..."," ",(df_inv2.shape[0]/df_invO.shape[0])*100," "," porciento de filas mantenidas en el archivo de inventarios")
-
-        filas_a_eliminar = cond_categoria & cond_stock
-
-        # 3. Mantenemos solo lo que NO cumple la combinación (usando el signo ~)
-        df_inv3=df_inv2[~filas_a_eliminar].copy()
-        st.write("3. Eliminamos filas que cumplían con: Simultaneamente  condicones de categoria= ??? y stock negativo o inexistente ..."," ",(df_inv3.shape[0]/df_invO.shape[0])*100," "," porciento de filas mantenidas en el archivo de inventarios")
+            with col_a:
+                st.metric("Filtro Multicondición", f"{p1:.1f}%", help="Categoría ??? + Stock Negativo + Sin Lead Time")
+            with col_b:
+                st.metric("Filtro Lead Time", f"{p2:.1f}%", help="Categoría ??? + Sin Lead Time")
+            with col_c:
+                st.metric("Filtro Stock Crítico", f"{p3:.1f}%", help="Categoría ??? + Stock Inexistente")
         
-        df_inv=df_inv3
-        st.write("Conclusión: Mantenemos aprox el ... "," ",(df_inv.shape[0]/df_invO.shape[0])*100," ","porciento de filas en el archivo de inventarios")
-
-        st.write("ESTAS FUERON LAS CONDICONES PARA IMPUTAR LOS DATOS DE INVENTARIO...")
-
-        st.write("1. Convertimos la columna a numérica (forzando errores a NaN)  Esto convierte 25-30 días o Inmediato en NaN temporalmente para calcular la mediana")
-
-        st.write("2. Calculamos la mediana de los valores que SÍ son números")
+            # Barra de estado final
+            st.write("**Integridad Final del Dataset:**")
+            st.progress(p_final / 100)
+            st.markdown(f"> **Conclusión:** Se ha preservado el **{p_final:.2f}%** de la data original tras aplicar las reglas de negocio.")
         
-        st.write("3. Creamos expresiones regulares en las categorias")
+        st.divider()
+        
+        # Sección de Imputación con diseño de "Pasos"
+        st.markdown(f"### 🛠️ Protocolo de Imputación de Datos")
+        with st.expander("Ver detalles del proceso técnico", expanded=True):
+            
+            c1, c2, c3 = st.columns([1, 1, 1])
+            
+            with c1:
+                st.markdown(f"""
+                <div style="background-color:#161B22; padding:15px; border-radius:10px; border-top: 3px solid {COLOR_AZUL}">
+                <h5 style="margin:0">1. Estandarización</h5>
+                <p style="font-size:0.85rem; color:#8b949e">Conversión a numérica forzando NaN en valores tipo texto (ej. 'Inmediato').</p>
+                </div>
+                """, unsafe_allow_html=True)
+        
+            with c2:
+                st.markdown(f"""
+                <div style="background-color:#161B22; padding:15px; border-radius:10px; border-top: 3px solid {COLOR_VERDE}">
+                <h5 style="margin:0">2. Análisis Estadístico</h5>
+                <p style="font-size:0.85rem; color:#8b949e">Cálculo de mediana robusta sobre valores numéricos existentes para evitar sesgos.</p>
+                </div>
+                """, unsafe_allow_html=True)
+        
+            with c3:
+                st.markdown(f"""
+                <div style="background-color:#161B22; padding:15px; border-radius:10px; border-top: 3px solid #FFD700">
+                <h5 style="margin:0">3. Regex Parsing</h5>
+                <p style="font-size:0.85rem; color:#8b949e">Aplicación de expresiones regulares para identificar categorías mediante patrones.</p>
+                </div>
+                """, unsafe_allow_html=True)
 
     
         st.write("En el DataSet despues de remover los SKU fantasma hay"," ",df.dropna().shape[0]," ","registros de",df.shape[0]," ","registros")
