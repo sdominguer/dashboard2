@@ -186,12 +186,12 @@ if uploaded_file:
     with tab4:
         st.subheader("Limpieza del dataset")
     
-        print("en el primer join obtengo"," ",df_rich.shape[0]," ","de registros pero descartando los SKU_ID fantasma que no estan en la tabla de productos obtengo",df_rich.dropna().shape[0]," ","registros")
-        print("en el segundo join tomando elementos nulos del primero obtengo"," ",df_full.shape[0]," ","registros pero descartando las Transaccion_ID fantasma (que no estan en la tabla de Feedbacks) y \n los SKU_ID Fantasma  obtengo",df_full.dropna().shape[0]," ","registros", "si eliminamos datos fantasma mantendriamos"," ",(df_full.dropna().shape[0]/df_full.shape[0])*100,"\n % de los datos")
-        df_sku=(pd.DataFrame(df_full.groupby('SKU_ID')['Ultima_Revision'].count().reset_index()))
-        print("tenemos"," ",df_sku[df_sku['Ultima_Revision']==0].reset_index().shape[0]," ","SKU Fantasmas")
-        df_tra=(pd.DataFrame(df_full.groupby('Transaccion_ID')['Ultima_Revision'].count().reset_index()))
-        print("tenemos"," ",df_tra[df_tra['Ultima_Revision']==0].reset_index().shape[0]," ","transacciones Fantasmas")
+        st.write("en el primer join obtengo"," ",df.shape[0]," ","de registros pero descartando los SKU_ID fantasma que no estan en la tabla de productos obtengo",df.dropna().shape[0]," ","registros")
+        st.write("en el segundo join tomando elementos nulos del primero obtengo"," ",df.shape[0]," ","registros pero descartando las Transaccion_ID fantasma (que no estan en la tabla de Feedbacks) y \n los SKU_ID Fantasma  obtengo",df.dropna().shape[0]," ","registros", "si eliminamos datos fantasma mantendriamos"," ",(df.dropna().shape[0]/df.shape[0])*100,"\n % de los datos")
+        df_sku=(pd.DataFrame(df.groupby('SKU_ID')['Ultima_Revision'].count().reset_index()))
+        st.write"tenemos"," ",df_sku[df_sku['Ultima_Revision']==0].reset_index().shape[0]," ","SKU Fantasmas")
+        df_tra=(pd.DataFrame(df.groupby('Transaccion_ID')['Ultima_Revision'].count().reset_index()))
+        st.write("tenemos"," ",df_tra[df_tra['Ultima_Revision']==0].reset_index().shape[0]," ","transacciones Fantasmas")
 
 else:
     st.info("🌙 Sistema en espera. Por favor cargue el archivo CSV en el panel lateral.")
