@@ -241,7 +241,7 @@ if uploaded_file:
         
         # Sección de Imputación con diseño de "Pasos"
         st.markdown(f"### 🛠️ Protocolo de Imputación de Datos")
-           st.info("📊 **Fase 2: Imputacion: sobre todas las tablas del dataset**")
+           
             with st.expander("Ver detalles del proceso técnico", expanded=True):
                 
                 c1, c2, c3 = st.columns([1, 1, 1])
