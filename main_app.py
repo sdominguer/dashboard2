@@ -250,7 +250,7 @@ if uploaded_file:
                 st.markdown(f"""
                 <div style="background-color:#161B22; padding:15px; border-radius:10px; border-top: 3px solid {COLOR_AZUL}">
                 <h5 style="margin:0">1. Estandarización</h5>
-                <p style="font-size:0.85rem; color:#8b949e">Conversión a numérica forzando NaN en valores tipo texto (ej. 'Inmediato').</p>
+                <p style="font-size:0.85rem; color:#8b949e">Conversión a numérica forzando NaN en valores tipo texto(Tablas:Inventario,Ventas,Feedback).</p>
                 </div>
                 """, unsafe_allow_html=True)
         
@@ -258,7 +258,7 @@ if uploaded_file:
                 st.markdown(f"""
                 <div style="background-color:#161B22; padding:15px; border-radius:10px; border-top: 3px solid {COLOR_VERDE}">
                 <h5 style="margin:0">2. Análisis Estadístico</h5>
-                <p style="font-size:0.85rem; color:#8b949e">Cálculo de mediana robusta sobre valores numéricos existentes para evitar sesgos.</p>
+                <p style="font-size:0.85rem; color:#8b949e">Cálculo de mediana robusta sobre valores numéricos existentes para evitar sesgos(Tablas:Inventario,Ventas,Feedback).</p>
                 </div>
                 """, unsafe_allow_html=True)
         
@@ -266,7 +266,7 @@ if uploaded_file:
                 st.markdown(f"""
                 <div style="background-color:#161B22; padding:15px; border-radius:10px; border-top: 3px solid #FFD700">
                 <h5 style="margin:0">3. Regex Parsing</h5>
-                <p style="font-size:0.85rem; color:#8b949e">Aplicación de expresiones regulares para identificar categorías mediante patrones.</p>
+                <p style="font-size:0.85rem; color:#8b949e">Aplicación de expresiones regulares para identificar categorías mediante patrones(Tablas:Inventario).</p>
                 </div>
                 """, unsafe_allow_html=True)
 
