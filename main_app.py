@@ -212,6 +212,13 @@ if uploaded_file:
             # Creamos columnas para mostrar el progreso de forma visual
             col_a, col_b, col_c = st.columns(3)
             df_inv1=df_inv[~filas_a_eliminar].copy()
+            filas_a_eliminar2 = cond_categoria & cond_lead_time
+            # 3. Mantenemos solo lo que NO cumple la combinación (usando el signo ~)
+            df_inv2=df_inv1[~filas_a_eliminar2].copy()
+            filas_a_eliminar3 = cond_categoria & cond_stock
+            # 3. Mantenemos solo lo que NO cumple la combinación (usando el signo ~)
+            df_inv3=df_inv2[~filas_a_eliminar3].copy()
+            
             # Cálculo de porcentajes para reusar
             p1 = (df_inv1.shape[0]/df_invO.shape[0])*100
             p2 = (df_inv2.shape[0]/df_invO.shape[0])*100
