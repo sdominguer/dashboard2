@@ -273,8 +273,8 @@ if uploaded_file:
 
 
                 # --- SECCIÓN: TRANSFORMACIÓN Y ENRIQUECIMIENTO ---
-                st.markdown("## ⚙️ Procesamiento y Cruce de Datos")
-                
+        st.markdown("## ⚙️ Procesamiento y Cruce de Datos")
+        with st.expander("Ver detalles del proceso ", expanded=True):
                 # 1. IMPUTACIÓN Y LIMPIEZA DE INVENTARIO
                 # Convertimos lead time a numérico para calcular mediana
                 lead_time_numerico = pd.to_numeric(p_final['Lead_Time_Dias'], errors='coerce')
