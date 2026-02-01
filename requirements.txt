@@ -4,3 +4,5 @@ plotly
 matplotlib
 groq
 numpy
+# Conexión con Microsoft 365 / SharePoint
+Office365-REST-Python-Client
