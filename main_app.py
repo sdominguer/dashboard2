@@ -49,25 +49,6 @@ st.markdown(f"""
     </style>
 """, unsafe_allow_html=True)
 
-CSV_URL1 = "https://eafit.sharepoint.com/sites/Section_1709_2661/Documentos%20compartidos/General/feedback_clientes_v2.csv?download=1"
-CSV_URL2 = "https://eafit.sharepoint.com/sites/Section_1709_2661/Documentos%20compartidos/General/transacciones_logistica_v2.csv?download=1"
-CSV_URL3 = "https://eafit.sharepoint.com/sites/Section_1709_2661/Documentos%20compartidos/General/inventario_central_v2.csv?download=1"
-    
-def load_data():
-    return pd.read_csv(CSV_URL1),pd.read_csv(CSV_URL2),pd.read_csv(CSV_URL3)
-    
-st.title("Editor de CSV desde SharePoint (solo lectura)")
-    
-if "df" not in st.session_state:
-    st.session_state.df = load_data().copy()
-df_editado = st.data_editor(
-    st.session_state.df,
-    num_rows="dynamic",
-    use_container_width=True
-)
-    
-st.session_state.df = df_editado
-
 # --- 3. LÓGICA DE DATOS ---
 @st.cache_data
 def load_and_process(file):
