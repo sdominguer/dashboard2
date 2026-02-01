@@ -202,6 +202,9 @@ if uploaded_file:
         # Esto identifica las filas que cumplen TODO al tiempo
         filas_a_eliminar = cond_categoria & cond_stock & cond_lead_time
         
+
+        st.write("ESTAS FUERON LAS CONDICONES PARA LIMPIAR LOS DATOS DE INVENTARIO...")
+        
         # 3. Mantenemos solo lo que NO cumple la combinación (usando el signo ~)
         df_inv1=df_inv[~filas_a_eliminar].copy()
         st.write("1. Eliminamos filas que cumplan: Simultaneamente condicones de categoria= ???, stock negativo y/o en blanco y sin datos de lead_time ... "," ",(df_inv1.shape[0]/df_invO.shape[0])*100," "," porciento de filas mantenidas en el archivo de inventarios")
