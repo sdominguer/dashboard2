@@ -25,8 +25,8 @@ st.markdown("""
 def get_sp_dataframe(server_relative_url):
     """Lee un archivo de SharePoint y devuelve un DataFrame independiente."""
     try:
-        ctx = ClientContext(st.secrets["https://eafit.sharepoint.com/sites/Section_1709_2661"]).with_credentials(
-            UserCredential(st.secrets["dagomezm3"], st.secrets["Keops71*"])
+        ctx = ClientContext(st.secrets["SP_SITE"]).with_credentials(
+            UserCredential(st.secrets["SP_USER"], st.secrets["SP_PASS"])
         )
         response = ctx.web.get_file_by_server_relative_url(server_relative_url).execute_query()
         df = pd.read_csv(io.BytesIO(response.content))
