@@ -189,9 +189,34 @@ if uploaded_file:
     with tab4:
         st.subheader("Limpieza del dataset")
 
-        df_t1
-        df_t2
-        df_t3
+
+        df_invO=df_t2
+
+        # 1. Definimos las máscaras (condiciones)
+        cond_categoria = (df_inv['Categoria'] == '???')
+        cond_stock = (df_inv['Stock_Actual'].isna()) | (pd.to_numeric(df_inv['Stock_Actual'], errors='coerce') <= 0)
+        cond_lead_time = (df_inv['Lead_Time_Dias'].isna())
+        
+        # 2. Combinamos las 3 condiciones con el operador & (AND)
+        # Esto identifica las filas que cumplen TODO al tiempo
+        filas_a_eliminar = cond_categoria & cond_stock & cond_lead_time
+        
+        # 3. Mantenemos solo lo que NO cumple la combinación (usando el signo ~)
+        df_inv1=df_inv[~filas_a_eliminar].copy()
+
+        filas_a_eliminar = cond_categoria & cond_lead_time
+
+        # 3. Mantenemos solo lo que NO cumple la combinación (usando el signo ~)
+        df_inv2=df_inv1[~filas_a_eliminar].copy()
+
+        filas_a_eliminar = cond_categoria & cond_stock
+
+        # 3. Mantenemos solo lo que NO cumple la combinación (usando el signo ~)
+        df_inv3=df_inv2[~filas_a_eliminar].copy()
+        
+        df_inv=df_inv3
+        print("mantenemos aprox el "," ",(df_inv.shape[0]/df_invO.shape[0])*100," ","porciento de filas")
+
     
         st.write("En el DataSet despues de remover los SKU fantasma hay"," ",df.dropna().shape[0]," ","registros de",df.shape[0]," ","registros")
         st.write("En el segundo join tomando elementos nulos del primero obtengo"," ",df.shape[0]," ","registros pero descartando las Transaccion_ID fantasma (que no estan en la tabla de Feedbacks) y \n los SKU_ID Fantasma  obtengo",df.dropna().shape[0]," ","registros", "si eliminamos datos fantasma mantendriamos"," ",(df.dropna().shape[0]/df.shape[0])*100,"\n % de los datos")
