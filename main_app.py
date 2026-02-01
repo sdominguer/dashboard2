@@ -188,6 +188,10 @@ if uploaded_file:
     # --- TAB 3: ELIMINACION DE LOS DATOS ---
     with tab4:
         st.subheader("Limpieza del dataset")
+
+        df_t1
+        df_t2
+        df_t3
     
         st.write("En el DataSet despues de remover los SKU fantasma hay"," ",df.dropna().shape[0]," ","registros de",df.shape[0]," ","registros")
         st.write("En el segundo join tomando elementos nulos del primero obtengo"," ",df.shape[0]," ","registros pero descartando las Transaccion_ID fantasma (que no estan en la tabla de Feedbacks) y \n los SKU_ID Fantasma  obtengo",df.dropna().shape[0]," ","registros", "si eliminamos datos fantasma mantendriamos"," ",(df.dropna().shape[0]/df.shape[0])*100,"\n % de los datos")
