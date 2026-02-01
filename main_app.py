@@ -242,33 +242,33 @@ if uploaded_file:
         # Sección de Imputación con diseño de "Pasos"
         st.markdown(f"### 🛠️ Protocolo de Imputación de Datos")
            st.info("📊 **Fase 2: Imputacion: sobre todas las tablas del dataset**")
-        with st.expander("Ver detalles del proceso técnico", expanded=True):
+            with st.expander("Ver detalles del proceso técnico", expanded=True):
+                
+                c1, c2, c3 = st.columns([1, 1, 1])
+                
+                with c1:
+                    st.markdown(f"""
+                    <div style="background-color:#161B22; padding:15px; border-radius:10px; border-top: 3px solid {COLOR_AZUL}">
+                    <h5 style="margin:0">1. Estandarización</h5>
+                    <p style="font-size:0.85rem; color:#8b949e">Conversión a numérica forzando NaN en valores tipo texto (ej. 'Inmediato').</p>
+                    </div>
+                    """, unsafe_allow_html=True)
             
-            c1, c2, c3 = st.columns([1, 1, 1])
+                with c2:
+                    st.markdown(f"""
+                    <div style="background-color:#161B22; padding:15px; border-radius:10px; border-top: 3px solid {COLOR_VERDE}">
+                    <h5 style="margin:0">2. Análisis Estadístico</h5>
+                    <p style="font-size:0.85rem; color:#8b949e">Cálculo de mediana robusta sobre valores numéricos existentes para evitar sesgos.</p>
+                    </div>
+                    """, unsafe_allow_html=True)
             
-            with c1:
-                st.markdown(f"""
-                <div style="background-color:#161B22; padding:15px; border-radius:10px; border-top: 3px solid {COLOR_AZUL}">
-                <h5 style="margin:0">1. Estandarización</h5>
-                <p style="font-size:0.85rem; color:#8b949e">Conversión a numérica forzando NaN en valores tipo texto (ej. 'Inmediato').</p>
-                </div>
-                """, unsafe_allow_html=True)
-        
-            with c2:
-                st.markdown(f"""
-                <div style="background-color:#161B22; padding:15px; border-radius:10px; border-top: 3px solid {COLOR_VERDE}">
-                <h5 style="margin:0">2. Análisis Estadístico</h5>
-                <p style="font-size:0.85rem; color:#8b949e">Cálculo de mediana robusta sobre valores numéricos existentes para evitar sesgos.</p>
-                </div>
-                """, unsafe_allow_html=True)
-        
-            with c3:
-                st.markdown(f"""
-                <div style="background-color:#161B22; padding:15px; border-radius:10px; border-top: 3px solid #FFD700">
-                <h5 style="margin:0">3. Regex Parsing</h5>
-                <p style="font-size:0.85rem; color:#8b949e">Aplicación de expresiones regulares para identificar categorías mediante patrones.</p>
-                </div>
-                """, unsafe_allow_html=True)
+                with c3:
+                    st.markdown(f"""
+                    <div style="background-color:#161B22; padding:15px; border-radius:10px; border-top: 3px solid #FFD700">
+                    <h5 style="margin:0">3. Regex Parsing</h5>
+                    <p style="font-size:0.85rem; color:#8b949e">Aplicación de expresiones regulares para identificar categorías mediante patrones.</p>
+                    </div>
+                    """, unsafe_allow_html=True)
 
     
         st.write("En el DataSet despues de remover los SKU fantasma hay"," ",df.dropna().shape[0]," ","registros de",df.shape[0]," ","registros")
