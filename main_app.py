@@ -273,7 +273,10 @@ if uploaded_file:
                 </div>
                 """, unsafe_allow_html=True)
                 
-                
+        df_t3=pd.DataFrame(df_t3)
+        df_t2=pd.DataFrame(df_t2)
+        df_t1=pd.DataFrame(df_t1)
+        df_inv3=pd.DataFrame(df_inv3)
         df_rich=pd.merge(df_t3,df_inv3,on='SKU_ID',how='left')
         print("en el primer join obtengo"," ",df_rich.shape[0]," ","de registros pero descartando los SKU_ID fantasma que no estan en la tabla de productos obtengo",df_rich.dropna().shape[0]," ","registros")
         df_full=pd.merge(df_rich,df_t1,on='Transaccion_ID',how='left')
