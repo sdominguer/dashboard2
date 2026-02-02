@@ -318,30 +318,30 @@ if uploaded_file:
                     
                     # --- DISEÑO DEL REPORTE DE INTEGRIDAD EN STREAMLIT ---
         with st.expander("📊 Ver Reporte de Consolidación y Datos Fantasma", expanded=True):
-                        c1, c2 = st.columns(2)
+            c1, c2 = st.columns(2)
                         
-                        with c1:
-                            st.info("**Análisis de Coincidencias (Merge)**")
-                            total_inicial = df_full.shape[0]
-                            datos_limpios = df_full.dropna().shape[0]
-                            pct_mantenido = (datos_limpios / total_inicial) * 100
+            with c1:
+                st.info("**Análisis de Coincidencias (Merge)**")
+                total_inicial = df_full.shape[0]
+                datos_limpios = df_full.dropna().shape[0]
+                pct_mantenido = (datos_limpios / total_inicial) * 100
                             
-                            st.write(f"✅ Registros Totales: `{total_inicial}`")
-                            st.write(f"🧹 Registros Saneados (Sin nulos): `{datos_limpios}`")
-                            st.metric("Integridad del Cruce", f"{pct_mantenido:.2f}%", delta_color="normal")
+                st.write(f"✅ Registros Totales: `{total_inicial}`")
+                st.write(f"🧹 Registros Saneados (Sin nulos): `{datos_limpios}`")
+                st.metric("Integridad del Cruce", f"{pct_mantenido:.2f}%", delta_color="normal")
                     
-                        with c2:
-                            st.warning("**Detección de Registros Fantasma**")
-                            # SKU Fantasmas
-                            df_sku_count = df_full.groupby('SKU_ID')['Ultima_Revision'].count().reset_index()
-                            sku_fantasmas = df_sku_count[df_sku_count['Ultima_Revision'] == 0].shape[0]
+            with c2:
+                st.warning("**Detección de Registros Fantasma**")
+                # SKU Fantasmas
+                df_sku_count = df_full.groupby('SKU_ID')['Ultima_Revision'].count().reset_index()
+                sku_fantasmas = df_sku_count[df_sku_count['Ultima_Revision'] == 0].shape[0]
                             
-                            # Transacciones Fantasmas
-                            df_tra_count = df_full.groupby('Transaccion_ID')['Ultima_Revision'].count().reset_index()
-                            tra_fantasmas = df_tra_count[df_tra_count['Ultima_Revision'] == 0].shape[0]
+                # Transacciones Fantasmas
+                df_tra_count = df_full.groupby('Transaccion_ID')['Ultima_Revision'].count().reset_index()
+                tra_fantasmas = df_tra_count[df_tra_count['Ultima_Revision'] == 0].shape[0]
                             
-                            st.write(f"👻 SKU no catalogados: `{sku_fantasmas}`")
-                            st.write(f"📑 Transacciones sin Feedback: `{tra_fantasmas}`")
+                st.write(f"👻 SKU no catalogados: `{sku_fantasmas}`")
+                st.write(f"📑 Transacciones sin Feedback: `{tra_fantasmas}`")
 
 else:
     st.info("🌙 Sistema en espera. Por favor cargue el archivo CSV en el panel lateral.")
