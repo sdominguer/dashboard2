@@ -482,7 +482,7 @@ if uploaded_file:
     
         st.write("La Utilidad Neta DESCARTANDO SKU Fantasma y Transaccion_ID fantasma son de...",f"${(df_full[df_full['SKU_ID'].notnull()]['Ganancias'].sum()):,.2f}")
         st.write("La Utilidad Neta DESCARTANDO solo SKU Fantasma...",f"${(df_rich[df_rich['SKU_ID'].notnull()]['Ganancias2'].sum()):,.2f}")
-        st.write("La Utilidad Neta TOMANDO SKU Fantasma y Transaccion_ID fantasma son de...",f"${(df_full['SKU_ID'].sum()):,.2f}")
+        st.write("La Utilidad Neta TOMANDO SKU Fantasma y Transaccion_ID fantasma son de...",f"${(df_full['Ganancias'].sum()):,.2f}")
         st.write("impacto casi del 75%!!... los datos elimiandos son considerables y esto debe ser tomado en cuenta en el analisis")
 
 
