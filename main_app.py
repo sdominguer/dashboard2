@@ -472,12 +472,16 @@ if uploaded_file:
     
     
 
-    st.write(df_full[df_full['Ganancias']<0].groupby('SKU_ID')['Ganancias'].sum().sort_values(ascending=False))
+   (df_full[df_full['Ganancias']<0].groupby('SKU_ID')['Ganancias'].sum().sort_values(ascending=False))
     
     ## ganancias totales VS SKU CON PERDIDA
     
     conc=pd.merge(df_full.groupby('Categoria')['Ganancias'].sum().sort_values(ascending=False),df_full[df_full['Ganancias']<0].groupby('Categoria')['Ganancias'].sum().sort_values(ascending=False),on='Categoria',how='left')
-    st.write(conc.rename(columns={'Ganancias_x':'Ganancias_totales','Ganancias_y':'Perdidas SKU con ganancias negativas'}))
+    (conc.rename(columns={'Ganancias_x':'Ganancias_totales','Ganancias_y':'Perdidas SKU con ganancias negativas'}))
+
+    st.write((df_full[df_full['Ultima_Revision'].isna()]['Ganancias'].sum()))
+    st.write((df_full['Ganancias'].sum()))
+    st.write("impacto casi del 75%!!... los datos elimiandos son considerables y esto debe ser tomado en cuenta en el analisis")
 
 
 
