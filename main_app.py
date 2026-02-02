@@ -480,7 +480,7 @@ if uploaded_file:
         conc=pd.merge(df_full.groupby('Categoria')['Ganancias'].sum().sort_values(ascending=False),df_full[df_full['Ganancias']<0].groupby('Categoria')['Ganancias'].sum().sort_values(ascending=False),on='Categoria',how='left')
         (conc.rename(columns={'Ganancias_x':'Ganancias_totales','Ganancias_y':'Perdidas SKU con ganancias negativas'}))
     
-        st.write("La Utilidad Neta TOMANDO SKU Fantasma y Transaccion_ID fantasma es de...",f"${(df_rich['Ganancias2'].sum()):,.2f}")
+        
         st.write("La Utilidad Neta DESCARTANDO SKU Fantasma...",f"${(df_rich[df_rich['Bodega_Origen'].notnull()]['Ganancias2'].sum()):,.2f}")
         st.write("La Utilidad Neta TOMANDO SKU Fantasma y Transaccion_ID fantasma es de...",f"${(df_full['Ganancias'].sum()):,.2f}")
         st.write("impacto casi del 75%!!... los datos elimiandos son considerables y esto debe ser tomado en cuenta en el analisis")
