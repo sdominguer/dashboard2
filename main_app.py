@@ -468,7 +468,7 @@ if uploaded_file:
         
         st.write("4. ","Tenemos"," ",df_tra[df_tra['Ultima_Revision']==0].reset_index().shape[0]," ","transacciones Fantasmas")
     
-        df_full['Ganancias']=(df_full['Precio_Venta_Final']* df_full['Cantidad_Vendida'])) -(df_full['Costo_Unitario_USD']* df_full['Cantidad_Vendida']))-df_full['Costo_Envio']
+        df_full['Ganancias']=(df_full['Precio_Venta_Final']* df_full['Cantidad_Vendida']) -(df_full['Costo_Unitario_USD']* df_full['Cantidad_Vendida'])-df_full['Costo_Envio']
         df_full[df_full['Ganancias']<0].groupby('SKU_ID')['Ganancias'].sum().sort_values(ascending=False)
         
         
