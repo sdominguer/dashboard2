@@ -68,6 +68,9 @@ if uploaded_file:
                 df_t2 = load_and_process(st.secrets["URL_TEAMS_2"])
                 st.write("Descargando archivo de Logística...")
                 df_t3 = load_and_process(st.secrets["URL_TEAMS_3"])
+                df_invO=df_t2
+                df_inv=df_t2
+                df_trans=df_t3
                 
                 st.session_state.teams_data = {"ventas": df_t1, "inventario": df_t2, "logistica": df_t3}
                 status.update(label="✅ Datos de Teams sincronizados", state="complete")
@@ -190,9 +193,7 @@ if uploaded_file:
         st.subheader("Limpieza del dataset")
 
 
-        df_invO=df_t2
-        df_inv=df_t2
-        df_trans=df_t3
+
 
         # 1. Definimos las máscaras (condiciones)
         cond_categoria = (df_inv['Categoria'] == '???')
