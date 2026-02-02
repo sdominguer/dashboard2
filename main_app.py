@@ -394,9 +394,9 @@ if uploaded_file:
     df_trans['Cantidad_Vendida'] = df_trans['Cantidad_Vendida'].clip(lower=0)
     
     # 2. Guardar archivos actualizados en el entorno
-    df_inv.to_csv('inventario_central_limpio.csv', index=False)
-    df_trans.to_csv('transacciones_logistica_limpias.csv', index=False)
-    df_feed.to_csv('feedback_clientes_limpio.csv', index=False)
+    #df_inv.to_csv('inventario_central_limpio.csv', index=False)
+    #df_trans.to_csv('transacciones_logistica_limpias.csv', index=False)
+    #df_feed.to_csv('feedback_clientes_limpio.csv', index=False)
 
         # 1. Reemplazamos los 999 por NaN para que no afecten el cálculo
     df_trans['Tiempo_Entrega_Real'] = df_trans['Tiempo_Entrega_Real'].replace(999, np.nan)
