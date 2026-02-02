@@ -480,7 +480,7 @@ if uploaded_file:
         (conc.rename(columns={'Ganancias_x':'Ganancias_totales','Ganancias_y':'Perdidas SKU con ganancias negativas'}))
     
         st.write("Las ganancias descartando SKU Fantasma y Transaccion_ID fantasma son de...",f"${(df_full[df_full['Ultima_Revision'].isna()]['Ganancias'].sum()):,.2f}")
-        st.write("Las ganancias manteniendo SKU Fantasma y Transaccion_ID fantasma son de...",(df_full['Ganancias'].sum()))
+        st.write("Las ganancias manteniendo SKU Fantasma y Transaccion_ID fantasma son de...",f"${(df_full['Ganancias'].sum()):,.2f}")
         st.write("impacto casi del 75%!!... los datos elimiandos son considerables y esto debe ser tomado en cuenta en el analisis")
 
 
