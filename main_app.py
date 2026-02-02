@@ -297,10 +297,10 @@ if uploaded_file:
                 
                 # 2. LIMPIEZA DE TRANSACCIONES Y FEEDBACK
         
-                    df_trans['Cantidad_Vendida'] = df_trans['Cantidad_Vendida'].clip(lower=0)
-                    df_trans['Tiempo_Entrega_Real'] = df_trans['Tiempo_Entrega_Real'].replace(999, np.nan)
-                    mediana_entrega = df_trans['Tiempo_Entrega_Real'].median()
-                    df_trans['Tiempo_Entrega_Real'] = df_trans['Tiempo_Entrega_Real'].fillna(mediana_entrega)
+                df_trans['Cantidad_Vendida'] = df_trans['Cantidad_Vendida'].clip(lower=0)
+                df_trans['Tiempo_Entrega_Real'] = df_trans['Tiempo_Entrega_Real'].replace(999, np.nan)
+                mediana_entrega = df_trans['Tiempo_Entrega_Real'].median()
+                df_trans['Tiempo_Entrega_Real'] = df_trans['Tiempo_Entrega_Real'].fillna(mediana_entrega)
                     
                     # Feedback: Reglas de Rating y Edad
                     mediana_rating = df_feed.loc[df_feed['Rating_Producto'].between(1, 5), 'Rating_Producto'].median()
