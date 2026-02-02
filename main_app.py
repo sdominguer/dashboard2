@@ -76,6 +76,7 @@ if uploaded_file:
         df_teams_2 = st.session_state.teams_data["inventario"]
         df_teams_3 = st.session_state.teams_data["logistica"]
         df_inv = st.session_state.teams_data["inventario"]
+        df_invO = st.session_state.teams_data["inventario"]
      
 
     except Exception as e:
