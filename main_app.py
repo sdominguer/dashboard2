@@ -303,18 +303,18 @@ if uploaded_file:
                 df_trans['Tiempo_Entrega_Real'] = df_trans['Tiempo_Entrega_Real'].fillna(mediana_entrega)
                     
                     # Feedback: Reglas de Rating y Edad
-                    mediana_rating = df_feed.loc[df_feed['Rating_Producto'].between(1, 5), 'Rating_Producto'].median()
-                    filas_para_eliminar = (~df_feed['Rating_Producto'].between(1, 5)) & (~df_feed['Edad_Cliente'].between(0, 100))
-                    df_feed = df_feed[~filas_para_eliminar].copy()
+                mediana_rating = df_feed.loc[df_feed['Rating_Producto'].between(1, 5), 'Rating_Producto'].median()
+                filas_para_eliminar = (~df_feed['Rating_Producto'].between(1, 5)) & (~df_feed['Edad_Cliente'].between(0, 100))
+                df_feed = df_feed[~filas_para_eliminar].copy()
                     
-                    cond_imputar = (~df_feed['Rating_Producto'].between(1, 5)) & (df_feed['Edad_Cliente'].between(0, 100))
-                    df_feed.loc[cond_imputar, 'Rating_Producto'] = mediana_rating
+                cond_imputar = (~df_feed['Rating_Producto'].between(1, 5)) & (df_feed['Edad_Cliente'].between(0, 100))
+                df_feed.loc[cond_imputar, 'Rating_Producto'] = mediana_rating
                     
                     # 3. CONSOLIDACIÓN FINAL (JOINS)
                     # Join 1: Transacciones + Inventario
-                    df_rich = pd.merge(df_trans, df_inv, on='SKU_ID', how='left')
+                df_rich = pd.merge(df_trans, df_inv, on='SKU_ID', how='left')
                     # Join 2: Resultado anterior + Feedback
-                    df_full = pd.merge(df_rich, df_feed, on='Transaccion_ID', how='left')
+                df_full = pd.merge(df_rich, df_feed, on='Transaccion_ID', how='left')
                     
                     # --- DISEÑO DEL REPORTE DE INTEGRIDAD EN STREAMLIT ---
                     with st.expander("📊 Ver Reporte de Consolidación y Datos Fantasma", expanded=True):
