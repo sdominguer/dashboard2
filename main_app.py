@@ -481,8 +481,8 @@ if uploaded_file:
         (conc.rename(columns={'Ganancias_x':'Ganancias_totales','Ganancias_y':'Perdidas SKU con ganancias negativas'}))
     
         st.write("La Utilidad Neta descartando SKU Fantasma y Transaccion_ID fantasma son de...",f"${(df_full[df_full['Ultima_Revision'].notnull()]['Ganancias'].sum()):,.2f}")
-        st.write("La Utilidad Neta SKU Fantasma...",f"${(df_rich[df_rich['Bodega_Origen'].notnull()]['Ganancias2'].sum()):,.2f}")
-        st.write("La Utilidad Neta SKU Fantasma y Transaccion_ID fantasma son de...",f"${(df_full['Ganancias'].sum()):,.2f}")
+        st.write("La Utilidad Neta descartando solo SKU Fantasma...",f"${(df_rich[df_rich['Ultima_Revision'].notnull()]['Ganancias2'].sum()):,.2f}")
+        st.write("La Utilidad Neta tomando SKU Fantasma y Transaccion_ID fantasma son de...",f"${(df_full['Ganancias'].sum()):,.2f}")
         st.write("impacto casi del 75%!!... los datos elimiandos son considerables y esto debe ser tomado en cuenta en el analisis")
 
 
