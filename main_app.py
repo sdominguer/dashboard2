@@ -461,11 +461,11 @@ if uploaded_file:
         
         df_sku=(pd.DataFrame(df_full.groupby('SKU_ID')['Ultima_Revision'].count().reset_index()))
         
-        st.write("               A.","Tenemos"," ",df_sku[df_sku['Ultima_Revision']==0].reset_index().shape[0]," ","SKU Fantasmas")
+        st.write("3. ","Tenemos"," ",df_sku[df_sku['Ultima_Revision']==0].reset_index().shape[0]," ","SKU Fantasmas")
         
         df_tra=(pd.DataFrame(df_full.groupby('Transaccion_ID')['Ultima_Revision'].count().reset_index()))
         
-        st.write("               B.","Tenemos"," ",df_tra[df_tra['Ultima_Revision']==0].reset_index().shape[0]," ","transacciones Fantasmas")
+        st.write("4. ","Tenemos"," ",df_tra[df_tra['Ultima_Revision']==0].reset_index().shape[0]," ","transacciones Fantasmas")
     
         df_full['Ganancias']=df_full['Precio_Venta_Final']-df_full['Costo_Envio']
         df_full[df_full['Ganancias']<0].groupby('SKU_ID')['Ganancias'].sum().sort_values(ascending=False)
