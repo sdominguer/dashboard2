@@ -454,6 +454,7 @@ if uploaded_file:
     
         
         df_rich=pd.merge(df_trans,df_inv3,on='SKU_ID',how='left')
+        df_rich['Ganancias2']=df_rich['Precio_Venta_Final']-df_rich['Costo_Envio']
         st.write("1. En la tabla Transaccional tengo"," ",df_rich.shape[0]," ","registros pero descartando los SKU_ID fantasma que no estan en la tabla de Inventarios obtengo",df_rich.dropna().shape[0]," ","registros.")
         df_full=pd.merge(df_rich,df_feed,on='Transaccion_ID',how='left')
         st.write("2. Luego conciliando la data de Feedbacks con la Transaccional obtengo"," ",df_full.shape[0]," ","registros pero hallamos unos Transaccion_ID fantasma (que no estan en la tabla de Feedbacks), descartandolos tambien como se hizo \n los SKU_ID Fantasma  obtengo",df_full.dropna().shape[0]," ","registros", "Despues de la limpieza de los NaN resultantes solo conservamos el"," ",round((df_full.dropna().shape[0]/df_full.shape[0])*100,1),"\n % de los datos")
@@ -480,7 +481,7 @@ if uploaded_file:
         (conc.rename(columns={'Ganancias_x':'Ganancias_totales','Ganancias_y':'Perdidas SKU con ganancias negativas'}))
     
         st.write("Las ganancias descartando SKU Fantasma y Transaccion_ID fantasma son de...",f"${(df_full[df_full['Ultima_Revision'].isna()]['Ganancias'].sum()):,.2f}")
-        st.write("Las ganancias descartando SKU Fantasma...",f"${(df_rich[df_rich['Punto_Reorden'].isna()]['Ganancias'].sum()):,.2f}")
+        st.write("Las ganancias descartando SKU Fantasma...",f"${(df_rich[df_rich['Bodega_Origen'].isna()]['Ganancias2'].sum()):,.2f}")
         st.write("Las ganancias manteniendo SKU Fantasma y Transaccion_ID fantasma son de...",f"${(df_full['Ganancias'].sum()):,.2f}")
         st.write("impacto casi del 75%!!... los datos elimiandos son considerables y esto debe ser tomado en cuenta en el analisis")
 
