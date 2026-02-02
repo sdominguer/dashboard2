@@ -454,9 +454,9 @@ if uploaded_file:
 
     
     df_rich=pd.merge(df_trans,df_inv3,on='SKU_ID',how='left')
-    st.write("Entre la tabla transaccional tengo"," ",df_rich.shape[0]," ","registros pero descartando los SKU_ID fantasma que no estan en la tabla de inventarios obtengo",df_rich.dropna().shape[0]," ","registros")
+    st.write("1. En la tabla Transaccional tengo"," ",df_rich.shape[0]," ","registros pero descartando los SKU_ID fantasma que no estan en la tabla de Inventarios obtengo",df_rich.dropna().shape[0]," ","registros.")
     df_full=pd.merge(df_rich,df_feed,on='Transaccion_ID',how='left')
-    st.write("Luego conciliando la data de Feedbacks con la transaccional obtengo"," ",df_full.shape[0]," ","registros pero hallamos unos Transaccion_ID fantasma (que no estan en la tabla de Feedbacks) y sumado alos \n los SKU_ID Fantasma  obtengo",df_full.dropna().shape[0]," ","registros", "si eliminamos datos fantasma mantendriamos"," ",(df_full.dropna().shape[0]/df_full.shape[0])*100,"\n % de los datos")
+    st.write("2. Luego conciliando la data de Feedbacks con la Transaccional obtengo"," ",df_full.shape[0]," ","registros pero hallamos unos Transaccion_ID fantasma (que no estan en la tabla de Feedbacks), descartandolos tambien como se hizo \n los SKU_ID Fantasma  obtengo",df_full.dropna().shape[0]," ","registros", "si eliminamos datos fantasma mantendriamos"," ",(df_full.dropna().shape[0]/df_full.shape[0])*100,"\n % de los datos")
     #print(df_full)
     
     df_sku=(pd.DataFrame(df_full.groupby('SKU_ID')['Ultima_Revision'].count().reset_index()))
