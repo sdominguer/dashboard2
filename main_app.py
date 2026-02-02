@@ -467,6 +467,18 @@ if uploaded_file:
     
     st.write("tenemos"," ",df_tra[df_tra['Ultima_Revision']==0].reset_index().shape[0]," ","transacciones Fantasmas")
 
+    df_full['Ganancias']=df_full['Precio_Venta_Final']-df_full['Costo_Envio']
+    df_full[df_full['Ganancias']<0].groupby('SKU_ID')['Ganancias'].sum().sort_values(ascending=False)
+    
+    
+
+    st.write(df_full[df_full['Ganancias']<0].groupby('SKU_ID')['Ganancias'].sum().sort_values(ascending=False))
+    
+    ## ganancias totales VS SKU CON PERDIDA
+    
+    conc=pd.merge(df_full.groupby('Categoria')['Ganancias'].sum().sort_values(ascending=False),df_full[df_full['Ganancias']<0].groupby('Categoria')['Ganancias'].sum().sort_values(ascending=False),on='Categoria',how='left')
+    st.write(conc.rename(columns={'Ganancias_x':'Ganancias_totales','Ganancias_y':'Perdidas SKU con ganancias negativas'}))
+
 
 
 else:
