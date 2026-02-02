@@ -454,7 +454,7 @@ if uploaded_file:
     
         
         df_rich=pd.merge(df_trans,df_inv3,on='SKU_ID',how='left')
-        df_rich['Ganancias2']=df_rich['Precio_Venta_Final']-df_rich['Costo_Envio']
+        df_rich['Ganancias2']=(df_rich['Precio_Venta_Final']* df_rich['Cantidad_Vendida'])) -(df_rich['Costo_Unitario_USD']* df_rich['Cantidad_Vendida']))-df_rich['Costo_Envio']
         st.write("1. En la tabla Transaccional tengo"," ",df_rich.shape[0]," ","registros pero descartando los SKU_ID fantasma que no estan en la tabla de Inventarios obtengo",df_rich.dropna().shape[0]," ","registros.")
         df_full=pd.merge(df_rich,df_feed,on='Transaccion_ID',how='left')
         st.write("2. Luego conciliando la data de Feedbacks con la Transaccional obtengo"," ",df_full.shape[0]," ","registros pero hallamos unos Transaccion_ID fantasma (que no estan en la tabla de Feedbacks), descartandolos tambien como se hizo \n los SKU_ID Fantasma  obtengo",df_full.dropna().shape[0]," ","registros", "Despues de la limpieza de los NaN resultantes solo conservamos el"," ",round((df_full.dropna().shape[0]/df_full.shape[0])*100,1),"\n % de los datos")
@@ -468,7 +468,7 @@ if uploaded_file:
         
         st.write("4. ","Tenemos"," ",df_tra[df_tra['Ultima_Revision']==0].reset_index().shape[0]," ","transacciones Fantasmas")
     
-        df_full['Ganancias']=df_full['Precio_Venta_Final']-df_full['Costo_Envio']
+        df_full['Ganancias']=(df_full['Precio_Venta_Final']* df_full['Cantidad_Vendida'])) -(df_full['Costo_Unitario_USD']* df_full['Cantidad_Vendida']))-df_full['Costo_Envio']
         df_full[df_full['Ganancias']<0].groupby('SKU_ID')['Ganancias'].sum().sort_values(ascending=False)
         
         
