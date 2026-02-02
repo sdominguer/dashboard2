@@ -472,7 +472,7 @@ if uploaded_file:
     
     
 
-   (df_full[df_full['Ganancias']<0].groupby('SKU_ID')['Ganancias'].sum().sort_values(ascending=False))
+    df_full[df_full['Ganancias']<0].groupby('SKU_ID')['Ganancias'].sum().sort_values(ascending=False)
     
     ## ganancias totales VS SKU CON PERDIDA
     
