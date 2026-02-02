@@ -272,26 +272,6 @@ if uploaded_file:
                 <p style="font-size:0.85rem; color:#8b949e">Aplicación de expresiones regulares para identificar categorías mediante patrones(Tablas:Inventario).</p>
                 </div>
                 """, unsafe_allow_html=True)
-                
-                df_t3=pd.DataFrame(df_t3)
-                df_t2=pd.DataFrame(df_t2)
-                df_t1=pd.DataFrame(df_t1)
-                df_inv3=pd.DataFrame(df_inv3)
-                df_rich=pd.merge(df_t3,df_inv3,on='SKU_ID',how='left')
-                print("en el primer join obtengo"," ",df_rich.shape[0]," ","de registros pero descartando los SKU_ID fantasma que no estan en la tabla de productos obtengo",df_rich.dropna().shape[0]," ","registros")
-                df_full=pd.merge(df_rich,df_t1,on='Transaccion_ID',how='left')
-                print("en el segundo join tomando elementos nulos del primero obtengo"," ",df_full.shape[0]," ","registros pero descartando las Transaccion_ID fantasma (que no estan en la tabla de Feedbacks) y \n los SKU_ID Fantasma  obtengo",df_full.dropna().shape[0]," ","registros", "si eliminamos datos fantasma mantendriamos"," ",(df_full.dropna().shape[0]/df_full.shape[0])*100,"\n % de los datos")
-                #print(df_full)
-                
-                df_sku=(pd.DataFrame(df_full.groupby('SKU_ID')['Ultima_Revision'].count().reset_index()))
-                
-                print("tenemos"," ",df_sku[df_sku['Ultima_Revision']==0].reset_index().shape[0]," ","SKU Fantasmas")
-                
-                df_tra=(pd.DataFrame(df_full.groupby('Transaccion_ID')['Ultima_Revision'].count().reset_index()))
-                
-                print("tenemos"," ",df_tra[df_tra['Ultima_Revision']==0].reset_index().shape[0]," ","transacciones Fantasmas")
-
-
 
 
 else:
