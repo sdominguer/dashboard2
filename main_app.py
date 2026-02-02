@@ -297,51 +297,51 @@ if uploaded_file:
                 
                 # 2. LIMPIEZA DE TRANSACCIONES Y FEEDBACK
         
-                df_trans['Cantidad_Vendida'] = df_trans['Cantidad_Vendida'].clip(lower=0)
-                df_trans['Tiempo_Entrega_Real'] = df_trans['Tiempo_Entrega_Real'].replace(999, np.nan)
-                mediana_entrega = df_trans['Tiempo_Entrega_Real'].median()
-                df_trans['Tiempo_Entrega_Real'] = df_trans['Tiempo_Entrega_Real'].fillna(mediana_entrega)
-                
-                # Feedback: Reglas de Rating y Edad
-                mediana_rating = df_feed.loc[df_feed['Rating_Producto'].between(1, 5), 'Rating_Producto'].median()
-                filas_para_eliminar = (~df_feed['Rating_Producto'].between(1, 5)) & (~df_feed['Edad_Cliente'].between(0, 100))
-                df_feed = df_feed[~filas_para_eliminar].copy()
-                
-                cond_imputar = (~df_feed['Rating_Producto'].between(1, 5)) & (df_feed['Edad_Cliente'].between(0, 100))
-                df_feed.loc[cond_imputar, 'Rating_Producto'] = mediana_rating
-                
-                # 3. CONSOLIDACIÓN FINAL (JOINS)
-                # Join 1: Transacciones + Inventario
-                df_rich = pd.merge(df_trans, df_inv, on='SKU_ID', how='left')
-                # Join 2: Resultado anterior + Feedback
-                df_full = pd.merge(df_rich, df_feed, on='Transaccion_ID', how='left')
-                
-                # --- DISEÑO DEL REPORTE DE INTEGRIDAD EN STREAMLIT ---
-                with st.expander("📊 Ver Reporte de Consolidación y Datos Fantasma", expanded=True):
-                    c1, c2 = st.columns(2)
+                    df_trans['Cantidad_Vendida'] = df_trans['Cantidad_Vendida'].clip(lower=0)
+                    df_trans['Tiempo_Entrega_Real'] = df_trans['Tiempo_Entrega_Real'].replace(999, np.nan)
+                    mediana_entrega = df_trans['Tiempo_Entrega_Real'].median()
+                    df_trans['Tiempo_Entrega_Real'] = df_trans['Tiempo_Entrega_Real'].fillna(mediana_entrega)
                     
-                    with c1:
-                        st.info("**Análisis de Coincidencias (Merge)**")
-                        total_inicial = df_full.shape[0]
-                        datos_limpios = df_full.dropna().shape[0]
-                        pct_mantenido = (datos_limpios / total_inicial) * 100
+                    # Feedback: Reglas de Rating y Edad
+                    mediana_rating = df_feed.loc[df_feed['Rating_Producto'].between(1, 5), 'Rating_Producto'].median()
+                    filas_para_eliminar = (~df_feed['Rating_Producto'].between(1, 5)) & (~df_feed['Edad_Cliente'].between(0, 100))
+                    df_feed = df_feed[~filas_para_eliminar].copy()
+                    
+                    cond_imputar = (~df_feed['Rating_Producto'].between(1, 5)) & (df_feed['Edad_Cliente'].between(0, 100))
+                    df_feed.loc[cond_imputar, 'Rating_Producto'] = mediana_rating
+                    
+                    # 3. CONSOLIDACIÓN FINAL (JOINS)
+                    # Join 1: Transacciones + Inventario
+                    df_rich = pd.merge(df_trans, df_inv, on='SKU_ID', how='left')
+                    # Join 2: Resultado anterior + Feedback
+                    df_full = pd.merge(df_rich, df_feed, on='Transaccion_ID', how='left')
+                    
+                    # --- DISEÑO DEL REPORTE DE INTEGRIDAD EN STREAMLIT ---
+                    with st.expander("📊 Ver Reporte de Consolidación y Datos Fantasma", expanded=True):
+                        c1, c2 = st.columns(2)
                         
-                        st.write(f"✅ Registros Totales: `{total_inicial}`")
-                        st.write(f"🧹 Registros Saneados (Sin nulos): `{datos_limpios}`")
-                        st.metric("Integridad del Cruce", f"{pct_mantenido:.2f}%", delta_color="normal")
-                
-                    with c2:
-                        st.warning("**Detección de Registros Fantasma**")
-                        # SKU Fantasmas
-                        df_sku_count = df_full.groupby('SKU_ID')['Ultima_Revision'].count().reset_index()
-                        sku_fantasmas = df_sku_count[df_sku_count['Ultima_Revision'] == 0].shape[0]
-                        
-                        # Transacciones Fantasmas
-                        df_tra_count = df_full.groupby('Transaccion_ID')['Ultima_Revision'].count().reset_index()
-                        tra_fantasmas = df_tra_count[df_tra_count['Ultima_Revision'] == 0].shape[0]
-                        
-                        st.write(f"👻 SKU no catalogados: `{sku_fantasmas}`")
-                        st.write(f"📑 Transacciones sin Feedback: `{tra_fantasmas}`")
+                        with c1:
+                            st.info("**Análisis de Coincidencias (Merge)**")
+                            total_inicial = df_full.shape[0]
+                            datos_limpios = df_full.dropna().shape[0]
+                            pct_mantenido = (datos_limpios / total_inicial) * 100
+                            
+                            st.write(f"✅ Registros Totales: `{total_inicial}`")
+                            st.write(f"🧹 Registros Saneados (Sin nulos): `{datos_limpios}`")
+                            st.metric("Integridad del Cruce", f"{pct_mantenido:.2f}%", delta_color="normal")
+                    
+                        with c2:
+                            st.warning("**Detección de Registros Fantasma**")
+                            # SKU Fantasmas
+                            df_sku_count = df_full.groupby('SKU_ID')['Ultima_Revision'].count().reset_index()
+                            sku_fantasmas = df_sku_count[df_sku_count['Ultima_Revision'] == 0].shape[0]
+                            
+                            # Transacciones Fantasmas
+                            df_tra_count = df_full.groupby('Transaccion_ID')['Ultima_Revision'].count().reset_index()
+                            tra_fantasmas = df_tra_count[df_tra_count['Ultima_Revision'] == 0].shape[0]
+                            
+                            st.write(f"👻 SKU no catalogados: `{sku_fantasmas}`")
+                            st.write(f"📑 Transacciones sin Feedback: `{tra_fantasmas}`")
 
 else:
     st.info("🌙 Sistema en espera. Por favor cargue el archivo CSV en el panel lateral.")
