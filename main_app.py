@@ -317,7 +317,7 @@ if uploaded_file:
                 df_full = pd.merge(df_rich, df_feed, on='Transaccion_ID', how='left')
                     
                     # --- DISEÑO DEL REPORTE DE INTEGRIDAD EN STREAMLIT ---
-                    with st.expander("📊 Ver Reporte de Consolidación y Datos Fantasma", expanded=True):
+                with st.expander("📊 Ver Reporte de Consolidación y Datos Fantasma", expanded=True):
                         c1, c2 = st.columns(2)
                         
                         with c1:
