@@ -303,7 +303,7 @@ if uploaded_file:
 
     # Llenar vacíos con una etiqueta de control
     df_trans=pd.DataFrame(df_trans_raw.copy())
-    df_trans['Estado_Envio'] = df_trans['Estado_Envio'].fillna('No especificado')
+    df_trans['Estado_Envio'] = df_trans.copy()['Estado_Envio'].fillna('No especificado')
 
         # 1. Diccionario de mapeo para estandarizar
     mapeo_ciudades = {
