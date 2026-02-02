@@ -283,7 +283,7 @@ if uploaded_file:
         print("-" * 30)
 
     audit_report(df_inv, "Inventario")
-    audit_report(df_trans_raw.copy(), "Transacciones")
+    audit_report(df_trans_raw, "Transacciones")
     audit_report(df_feed, "Feedback")
     
     import re
@@ -303,7 +303,7 @@ if uploaded_file:
 
     # Llenar vacíos con una etiqueta de control
     df_trans=pd.DataFrame(df_trans_raw.copy())
-    df_trans['Estado_Envio'] = df_trans['Estado_Envio'].fillna('No especificado')
+    df_trans['Estado_Envio'] = ['Estado_Envio'].fillna('No especificado')
 
         # 1. Diccionario de mapeo para estandarizar
     mapeo_ciudades = {
