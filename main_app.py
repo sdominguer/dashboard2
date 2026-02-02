@@ -192,6 +192,7 @@ if uploaded_file:
 
         df_invO=df_t2
         df_inv=df_t2
+        df_trans=df_t3
 
         # 1. Definimos las máscaras (condiciones)
         cond_categoria = (df_inv['Categoria'] == '???')
@@ -295,6 +296,7 @@ if uploaded_file:
                     df_inv['Categoria'] = df_inv['Categoria'].str.replace(patron, reemplazo, regex=True)
                 
                 # 2. LIMPIEZA DE TRANSACCIONES Y FEEDBACK
+        
                 df_t3['Cantidad_Vendida'] = df_t3['Cantidad_Vendida'].clip(lower=0)
                 df_t3['Tiempo_Entrega_Real'] = df_t3['Tiempo_Entrega_Real'].replace(999, np.nan)
                 mediana_entrega = df_t3['Tiempo_Entrega_Real'].median()
