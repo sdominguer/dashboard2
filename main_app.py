@@ -68,8 +68,6 @@ if uploaded_file:
                 df_t2 = load_and_process(st.secrets["URL_TEAMS_2"])
                 st.write("Descargando archivo de Logística...")
                 df_t3 = load_and_process(st.secrets["URL_TEAMS_3"])
-
-                
                 st.session_state.teams_data = {"ventas": df_t1, "inventario": df_t2, "logistica": df_t3}
                 status.update(label="✅ Datos de Teams sincronizados", state="complete")
         
@@ -77,6 +75,8 @@ if uploaded_file:
         df_teams_1 = st.session_state.teams_data["ventas"]
         df_teams_2 = st.session_state.teams_data["inventario"]
         df_teams_3 = st.session_state.teams_data["logistica"]
+        df_inv = st.session_state.teams_data["inventario"]
+     
 
     except Exception as e:
         st.error(f"Error al leer de Teams. Verifica los enlaces en Secrets. Error: {e}")
@@ -270,10 +270,6 @@ if uploaded_file:
                 <p style="font-size:0.85rem; color:#8b949e">Aplicación de expresiones regulares para identificar categorías mediante patrones(Tablas:Inventario).</p>
                 </div>
                 """, unsafe_allow_html=True)
-    
-
-
-
 
 
 
