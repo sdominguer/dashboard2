@@ -79,7 +79,7 @@ if uploaded_file:
         df_inv = st.session_state.teams_data["inventario"]
         df_invO = st.session_state.teams_data["inventario"]
         df_trans=st.session_state.teams_data["logistica"]
-        df_feed=st.session_state.teams_data["ventas"]
+        df_feed_raw=st.session_state.teams_data["ventas"]
      
 
     except Exception as e:
@@ -283,7 +283,7 @@ if uploaded_file:
         print("-" * 30)
 
     audit_report(df_inv, "Inventario")
-    audit_report(df_trans, "Transacciones")
+    audit_report(df_trans_raw.copy(), "Transacciones")
     audit_report(df_feed, "Feedback")
     
     import re
@@ -302,7 +302,7 @@ if uploaded_file:
     df_inv['Lead_Time_Dias'] = df_inv['Lead_Time_Dias'].fillna(mediana_lead)
 
     # Llenar vacíos con una etiqueta de control
-    df_trans=pd.DataFrame(df_trans)
+    df_trans=pd.DataFrame(df_trans_raw.copy())
     df_trans['Estado_Envio'] = df_trans['Estado_Envio'].fillna('No especificado')
 
         # 1. Diccionario de mapeo para estandarizar
