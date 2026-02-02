@@ -78,8 +78,8 @@ if uploaded_file:
         df_teams_3 = st.session_state.teams_data["logistica"]
         df_inv = st.session_state.teams_data["inventario"]
         df_invO = st.session_state.teams_data["inventario"]
-        df_trans=st.session_state.teams_data["logistica"]
-        df_feed_raw=st.session_state.teams_data["ventas"]
+        df_trans_raw=st.session_state.teams_data["logistica"]
+        df_feed=st.session_state.teams_data["ventas"]
      
 
     except Exception as e:
@@ -283,7 +283,7 @@ if uploaded_file:
         print("-" * 30)
 
     audit_report(df_inv, "Inventario")
-    audit_report(df_trans, "Transacciones")
+    audit_report(df_trans_raw, "Transacciones")
     audit_report(df_feed, "Feedback")
     
     import re
