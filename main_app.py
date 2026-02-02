@@ -283,7 +283,7 @@ if uploaded_file:
         print("-" * 30)
 
     audit_report(df_inv, "Inventario")
-    audit_report(df_trans_raw, "Transacciones")
+    audit_report(df_trans, "Transacciones")
     audit_report(df_feed, "Feedback")
     
     import re
