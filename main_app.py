@@ -68,9 +68,7 @@ if uploaded_file:
                 df_t2 = load_and_process(st.secrets["URL_TEAMS_2"])
                 st.write("Descargando archivo de Logística...")
                 df_t3 = load_and_process(st.secrets["URL_TEAMS_3"])
-                df_invO=df_t2
-                df_inv=df_t2
-                df_trans=df_t3
+
                 
                 st.session_state.teams_data = {"ventas": df_t1, "inventario": df_t2, "logistica": df_t3}
                 status.update(label="✅ Datos de Teams sincronizados", state="complete")
@@ -275,9 +273,9 @@ if uploaded_file:
     
 
 
-    df_t32=pd.DataFrame(df_t3.copy())
-    df_t22=pd.DataFrame(df_t2.copy())
-    df_t12=pd.DataFrame(df_t1.copy())
+    df_t32=pd.DataFrame(df_teams_3)
+    df_t22=pd.DataFrame(df_teams_2)
+    df_t12=pd.DataFrame(df_teams_1)
     df_rich=pd.merge(df_t32,df_t22,on='SKU_ID',how='left')
     print("en el primer join obtengo"," ",df_rich.shape[0]," ","de registros pero descartando los SKU_ID fantasma que no estan en la tabla de productos obtengo",df_rich.dropna().shape[0]," ","registros")
     df_full=pd.merge(df_rich,df_t12,on='Transaccion_ID',how='left')
